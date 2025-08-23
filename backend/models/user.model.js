@@ -1,6 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import bcrypt, { hash } from "bcrypt";
-import { ApiError } from "../utils/ApiError";
+import bcrypt from "bcrypt";
 
 const userSchema = new Schema(
   {
