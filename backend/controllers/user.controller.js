@@ -1,9 +1,10 @@
 import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import asyncHandler from "../utils/asyncHandler.js";
+import sendMail from "../utils/sendMail.js";
 import uploadOnCloudinary from "../utils/uploadOnCloudinary.js";
 import fs from "fs";
-
+import crypto from "crypto"
 // fxn to handle the registering of users
 const registerUser = asyncHandler(async function (req, res, next) {
   // this try catch block,inspite of the asynHandler, is required to remove any files stored in temp folder provided that any error occurs, if not done the junk files will keep on accumulating locally
@@ -135,8 +136,8 @@ const logoutUser = asyncHandler(async function (req, res, next) {
     { new: true }
   );
 
-  if(!user){
-    throw new ApiError(404,"user not found")
+  if (!user) {
+    throw new ApiError(404, "user not found");
   }
 
   const options = {
@@ -155,4 +156,84 @@ const logoutUser = asyncHandler(async function (req, res, next) {
     });
 });
 
-export { registerUser, loginUser, logoutUser };
+// this handler fxn will be reponsible for sending verfication emails 
+const sendEmailVerification = asyncHandler(async function (req, res, next) {
+  const user = req.user;
+  if (!user) {
+    throw new ApiError(401, "the user is not valid");
+  }
+
+  const {rawToken,hashedToken} = user.generateEmailVerificationToken();
+
+  //saving the hashed  token to the database
+  user.emailVerificationToken = hashedToken;
+  await user.save({ validateBeforeSave: false }); 
+  
+  //info is for debugging purpose, remove it later
+  let info;
+  try {
+    info = await sendMail(
+      req.user.email,
+      process.env.BASE_URL +
+        `/users/verify-email?token=${rawToken}&ref=verification` // the link will contain the raw token
+    );
+  } catch (error) { // currently the catch block won't trigger when the user's email has valid syntax but does not exist since valid syntax emails are accepted initially but may bounce back if they don't exist this bounce back becomes out of scope of the code
+    //TODO: when ready to be deployed to vercel or some other service add the website's url  mailgun webhook to detected such case
+    User.findByIdAndUpdate(user._id,{
+      $set:{
+        emailVerificationToken: null
+      }
+    })
+    throw new ApiError(500, error);
+  }
+  console.log("info",info)
+
+  return res
+  .status(200)
+  .json({
+    status: 200,
+    success: true,
+    message:"verification email sent successfully",
+  })
+});
+
+//handler function which actually verifies email
+const verifyEmail = asyncHandler(async function (req,res,next) {
+
+  //getting token,ref from the query
+  const rawToken = req.query?.token
+  const ref = req.query?.ref
+
+
+  if(!rawToken){
+    throw new ApiError(401,"email verification token not found")
+  }
+  if(!ref || ref != 'verification'){
+    throw new ApiError(400,"the ref is not valid")
+  }
+
+  //hashing the token in the same way compared to when it was created
+  const hashedToken = crypto
+                        .createHash("sha256")
+                        .update(rawToken)
+                        .digest("hex")
+
+  const user = await User.findOne({ emailVerificationToken:hashedToken})
+
+  if(!user)
+    throw new ApiError(404,"user not found")
+
+  // finally updating email verification status
+  user.isEmailVerified = true
+  await user.save({validateBeforeSave:false})
+
+  return res
+  .status(200)
+  .json({
+    status:200,
+    success:true,
+    message:"user email verified successfully"
+  })
+})
+
+export { registerUser, loginUser, logoutUser, sendEmailVerification, verifyEmail };

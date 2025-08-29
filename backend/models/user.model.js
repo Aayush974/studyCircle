@@ -1,7 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-
+import crypto from "crypto"
 const userSchema = new Schema(
   {
     username: {
@@ -47,7 +47,7 @@ const userSchema = new Schema(
   }
 );
 
-//hashing the user password before saving to Db
+//hashing the user password or email token before saving to Db
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
   try {
@@ -55,7 +55,7 @@ userSchema.pre("save", async function (next) {
     this.password = await bcrypt.hash(this.password, salt);
     next();
   } catch (error) {
-    next(err);
+    next(error);
   }
 });
 
@@ -65,7 +65,7 @@ userSchema.methods.validatePassword = async function (userPassword) {
   return isValid;
 };
 
-userSchema.methods.generateAccessToken = function (payload) {
+userSchema.methods.generateAccessToken = function () {
   return jwt.sign(
     {
       _id: this._id,
@@ -78,7 +78,7 @@ userSchema.methods.generateAccessToken = function (payload) {
   );
 };
 
-userSchema.methods.generateRefreshToken = function (payload) {
+userSchema.methods.generateRefreshToken = function () {
   return jwt.sign(
     {
       _id: this._id,
@@ -89,6 +89,17 @@ userSchema.methods.generateRefreshToken = function (payload) {
       expiresIn: process.env.REFRESH_TOKEN_EXPIRY,
     }
   );
+};
+
+// using a cyrpto randomUUID is a better option for email verification tokens than jwt 
+userSchema.methods.generateEmailVerificationToken = function () {
+  const rawToken = crypto.randomUUID()
+  const hashedToken = crypto
+                    .createHash("sha256") 
+                    .update(rawToken)
+                    .digest("hex")
+
+  return {rawToken,hashedToken}
 };
 
 export const User = mongoose.model("User", userSchema);
