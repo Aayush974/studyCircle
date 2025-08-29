@@ -164,8 +164,9 @@ const sendEmailVerification = asyncHandler(async function (req, res, next) {
   }
 
   const {rawToken,hashedToken} = user.generateEmailVerificationToken();
-
-  //saving the hashed  token to the database
+  const emailVerificationTokenExpires = Date.now() + 60*1000 // email token expiry of 
+  //saving the hashed  token and its expiry to the database
+  user.emailVerificationTokenExpires = emailVerificationTokenExpires
   user.emailVerificationToken = hashedToken;
   await user.save({ validateBeforeSave: false }); 
   
