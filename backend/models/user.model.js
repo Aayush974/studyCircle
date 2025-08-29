@@ -1,7 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import crypto from "crypto"
+import crypto from "crypto";
 const userSchema = new Schema(
   {
     username: {
@@ -91,15 +91,15 @@ userSchema.methods.generateRefreshToken = function () {
   );
 };
 
-// using a cyrpto randomUUID is a better option for email verification tokens than jwt 
+// using a cyrpto randomUUID is a better option for email verification tokens than jwt
 userSchema.methods.generateEmailVerificationToken = function () {
-  const rawToken = crypto.randomUUID()
+  const rawToken = crypto.randomUUID();
   const hashedToken = crypto
-                    .createHash("sha256") 
-                    .update(rawToken)
-                    .digest("hex")
+    .createHash("sha256")
+    .update(rawToken)
+    .digest("hex");
 
-  return {rawToken,hashedToken}
+  return { rawToken, hashedToken };
 };
 
 export const User = mongoose.model("User", userSchema);

@@ -1,7 +1,7 @@
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
 
-// after storing images locally they are stored in cloudinary 
+// after storing images locally they are stored in cloudinary
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
@@ -16,11 +16,20 @@ const uploadOnCloudinary = async function (localFilePath) {
     });
     return uploadedFileData;
   } catch (error) {
-    console.log(error)
-    return null;
+    console.error("Cloudinary Upload Error:", {
+      http_code: error.http_code,
+      message: error.message,
+      name: error.name,
+      stack: error.stack,
+    });
+
+    throw new ApiError(
+      error.http_code || 500,
+      error.message || "Cloudinary upload failed"
+    );
   } finally {
     fs.unlinkSync(localFilePath);
   }
 };
 
-export default uploadOnCloudinary
+export default uploadOnCloudinary;

@@ -17,7 +17,7 @@ const registerUser = asyncHandler(async function (req, res, next) {
     );
 
     if (isFieldEmpty) {
-      throw new ApiError(400, "all fields are required");
+      throw new ApiError(422, "all fields are required");
     }
 
     //checking if user already exists
@@ -26,7 +26,7 @@ const registerUser = asyncHandler(async function (req, res, next) {
     });
 
     if (userExists) {
-      throw new ApiError(400, "the user is already registered");
+      throw new ApiError(409, "the user is already registered");
     }
 
     //getting the localAvatar file path to upload it to cloudinary
@@ -35,9 +35,6 @@ const registerUser = asyncHandler(async function (req, res, next) {
 
     if (localAvatarFilePath) {
       const uploadedFileData = await uploadOnCloudinary(localAvatarFilePath);
-      if (!uploadedFileData) {
-        throw new ApiError(500, "file could not be uploaded to cloudinary");
-      }
       uploadedFileUrl = uploadedFileData.secure_url;
     }
 
@@ -59,8 +56,8 @@ const registerUser = asyncHandler(async function (req, res, next) {
 
     delete newUser.password;
 
-    return res.status(200).json({
-      status: 200,
+    return res.status(201).json({
+      status: 201,
       success: true,
       message: "user registered successfully",
       user: newUser,
@@ -79,7 +76,7 @@ const loginUser = asyncHandler(async function (req, res, next) {
   );
 
   if (isFieldEmpty) {
-    throw new ApiError(400, "all fields are required");
+    throw new ApiError(422, "all fields are required");
   }
 
   const user = await User.findOne({
@@ -87,14 +84,14 @@ const loginUser = asyncHandler(async function (req, res, next) {
   });
 
   if (!user) {
-    throw new ApiError(400, "the user does not exist");
+    throw new ApiError(404, "the user does not exist");
   }
 
   // schema method used to verify the hashed password by bcrypt
   const isPasswordValid = user.validatePassword(password);
 
   if (!isPasswordValid) {
-    throw new ApiError(400, "the password entered is wrong");
+    throw new ApiError(401, "the password entered is wrong");
   }
 
   // generating access and refresh tokens
@@ -185,7 +182,7 @@ const sendEmailVerification = asyncHandler(async function (req, res, next) {
         emailVerificationToken: null
       }
     })
-    throw new ApiError(500, error);
+    throw error
   }
   console.log("info",info)
 
