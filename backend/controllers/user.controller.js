@@ -4,7 +4,8 @@ import asyncHandler from "../utils/asyncHandler.js";
 import sendMail from "../utils/sendMail.js";
 import uploadOnCloudinary from "../utils/uploadOnCloudinary.js";
 import fs from "fs";
-import crypto from "crypto"
+import crypto from "crypto";
+import jwt from "jsonwebtoken";
 // fxn to handle the registering of users
 const registerUser = asyncHandler(async function (req, res, next) {
   // this try catch block,inspite of the asynHandler, is required to remove any files stored in temp folder provided that any error occurs, if not done the junk files will keep on accumulating locally
@@ -153,85 +154,145 @@ const logoutUser = asyncHandler(async function (req, res, next) {
     });
 });
 
-// this handler fxn will be reponsible for sending verfication emails 
+// this handler fxn will be reponsible for sending verfication emails
 const sendEmailVerification = asyncHandler(async function (req, res, next) {
   const user = req.user;
   if (!user) {
     throw new ApiError(401, "the user is not valid");
   }
 
-  const {rawToken,hashedToken} = user.generateEmailVerificationToken();
-  const emailVerificationTokenExpires = Date.now() + 60*1000 // email token expiry of 
+  // if user is already verfied
+  if (user.isEmailVerified) {
+    return res.status(200).json({
+      status: 200,
+      success: true,
+      message: "user email is already verified",
+    });
+  }
+
+  const { rawToken, hashedToken } = user.generateEmailVerificationToken();
+  const emailVerificationTokenExpires = new Date(Date.now() + 60 * 1000); // email token expiry of 1 min
   //saving the hashed  token and its expiry to the database
-  user.emailVerificationTokenExpires = emailVerificationTokenExpires
+  user.emailVerificationTokenExpires = emailVerificationTokenExpires;
   user.emailVerificationToken = hashedToken;
-  await user.save({ validateBeforeSave: false }); 
-  
-  //info is for debugging purpose, remove it later
-  let info;
+  await user.save({ validateBeforeSave: false });
+
   try {
-    info = await sendMail(
+    await sendMail(
       req.user.email,
       process.env.BASE_URL +
         `/users/verify-email?token=${rawToken}&ref=verification` // the link will contain the raw token
     );
-  } catch (error) { // currently the catch block won't trigger when the user's email has valid syntax but does not exist since valid syntax emails are accepted initially but may bounce back if they don't exist this bounce back becomes out of scope of the code
+  } catch (error) {
+    // currently the catch block won't trigger when the user's email has valid syntax but does not exist since valid syntax emails are accepted initially but may bounce back if they don't exist this bounce back becomes out of scope of the code
     //TODO: when ready to be deployed to vercel or some other service add the website's url  mailgun webhook to detected such case
-    User.findByIdAndUpdate(user._id,{
-      $set:{
-        emailVerificationToken: null
-      }
-    })
-    throw error
+    await User.findByIdAndUpdate(user._id, {
+      $set: {
+        emailVerificationToken: null,
+      },
+    });
+    throw error;
   }
-  console.log("info",info)
 
-  return res
-  .status(200)
-  .json({
+  return res.status(200).json({
     status: 200,
     success: true,
-    message:"verification email sent successfully",
-  })
+    message: "verification email sent successfully",
+  });
 });
 
 //handler function which actually verifies email
-const verifyEmail = asyncHandler(async function (req,res,next) {
-
+const verifyEmail = asyncHandler(async function (req, res, next) {
   //getting token,ref from the query
-  const rawToken = req.query?.token
-  const ref = req.query?.ref
+  const rawToken = req.query?.token;
+  const ref = req.query?.ref;
 
-
-  if(!rawToken){
-    throw new ApiError(401,"email verification token not found")
+  if (!rawToken) {
+    throw new ApiError(401, "email verification token not found");
   }
-  if(!ref || ref != 'verification'){
-    throw new ApiError(400,"the ref is not valid")
+  if (!ref || ref != "verification") {
+    throw new ApiError(400, "the ref is not valid");
   }
 
   //hashing the token in the same way compared to when it was created
   const hashedToken = crypto
-                        .createHash("sha256")
-                        .update(rawToken)
-                        .digest("hex")
+    .createHash("sha256")
+    .update(rawToken)
+    .digest("hex");
 
-  const user = await User.findOne({ emailVerificationToken:hashedToken})
+  const user = await User.findOne({ emailVerificationToken: hashedToken });
+  if (!user) throw new ApiError(404, "user not found");
 
-  if(!user)
-    throw new ApiError(404,"user not found")
+  if (user.emailVerificationTokenExpires < Date.now()) {
+    throw new ApiError(
+      403,
+      "the email verification token has expired please generate a new one"
+    );
+  }
 
   // finally updating email verification status
-  user.isEmailVerified = true
-  await user.save({validateBeforeSave:false})
+  user.isEmailVerified = true;
+  user.emailVerificationToken = null; // after verifying the email, empty these fields
+  user.emailVerificationTokenExpires = null;
+  await user.save({ validateBeforeSave: false });
+
+  return res.status(200).json({
+    status: 200,
+    success: true,
+    message: "user email verified successfully",
+  });
+});
+
+const refreshAccessAndRefreshToken = asyncHandler(async function (
+  req,
+  res,
+  next
+) {
+  const refreshToken = req.cookies.refreshToken;
+  let decodedToken;
+  try {
+    decodedToken = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+  } catch (error) {
+    throw new ApiError(403, "the token is invalid");
+  }
+
+  const user = await User.findById(decodedToken._id);
+
+  if (!user) {
+    throw new ApiError(404, "user not found");
+  }
+
+  const newAccessToken = user.generateAccessToken();
+  const newRefreshToken = user.generateRefreshToken();
+
+  user.refreshToken = newRefreshToken;
+  await user.save({ validateBeforeSave: false });
+  user.toObject();
+
+  delete user.password;
+  delete user.refreshToken;
+
+  const options = {
+    httpOnly: true,
+    secure: true,
+  };
 
   return res
-  .status(200)
-  .json({
-    status:200,
-    success:true,
-    message:"user email verified successfully"
-  })
-})
+    .status(200)
+    .cookie("accessToken", newAccessToken, options)
+    .cookie("refreshToken", newRefreshToken, options)
+    .json({
+      status: 200,
+      success: true,
+      message: "access token refreshed successfully",
+    });
+});
 
-export { registerUser, loginUser, logoutUser, sendEmailVerification, verifyEmail };
+export {
+  registerUser,
+  loginUser,
+  logoutUser,
+  sendEmailVerification,
+  verifyEmail,
+  refreshAccessAndRefreshToken,
+};

@@ -3,6 +3,7 @@ import uploadMiddleware from "../middlewares/multer.middleware.js";
 import {
   loginUser,
   logoutUser,
+  refreshAccessAndRefreshToken,
   registerUser,
   sendEmailVerification,
   verifyEmail,
@@ -16,4 +17,8 @@ userRouter.post("/login", loginUser);
 userRouter.post("/logout", verifyJwt, logoutUser);
 userRouter.get("/send-verification-email", verifyJwt, sendEmailVerification);
 userRouter.get("/verify-email", verifyEmail);
+userRouter.get(
+  "/refresh-access-and-refresh-tokens",
+  refreshAccessAndRefreshToken
+);
 export { userRouter };
