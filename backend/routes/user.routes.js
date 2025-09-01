@@ -6,6 +6,8 @@ import {
   refreshAccessAndRefreshToken,
   registerUser,
   sendEmailVerification,
+  updateAvatar,
+  updatePassword,
   verifyEmail,
 } from "../controllers/user.controller.js";
 import verifyJwt from "../middlewares/auth.middleware.js";
@@ -21,4 +23,6 @@ userRouter.get(
   "/refresh-access-and-refresh-tokens",
   refreshAccessAndRefreshToken
 );
+userRouter.post("/update-password", verifyJwt, updatePassword);
+userRouter.post("/update-avatar", verifyJwt, uploadMiddleware, updateAvatar);
 export { userRouter };

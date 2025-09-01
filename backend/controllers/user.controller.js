@@ -6,6 +6,7 @@ import uploadOnCloudinary from "../utils/uploadOnCloudinary.js";
 import fs from "fs";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
+import { validateHeaderName } from "http";
 // fxn to handle the registering of users
 const registerUser = asyncHandler(async function (req, res, next) {
   // this try catch block,inspite of the asynHandler, is required to remove any files stored in temp folder provided that any error occurs, if not done the junk files will keep on accumulating locally
@@ -288,6 +289,72 @@ const refreshAccessAndRefreshToken = asyncHandler(async function (
     });
 });
 
+const updatePassword = asyncHandler(async function (req, res) {
+  const oldUser = req.user;
+  const oldPassword = req.body.oldPassword;
+  const newPassword = req.body.newPassword;
+
+  if (!oldPassword || !newPassword) {
+    throw new ApiError(400, "enter the password");
+  }
+
+  if (oldPassword == newPassword) {
+    throw new ApiError(422, "new password cannot be the same as old password");
+  }
+
+  const user = await User.findById(oldUser._id); // this is required to get the password field of the user object since the user in jwt don't have the passwordd field
+  if (!user) {
+    throw new ApiError(404, "user not found");
+  }
+  
+  const isPasswordValid = user.validatePassword(oldPassword);
+  if (!isPasswordValid) {
+    throw new ApiError(403, "the password is incorrect");
+  }
+
+  user.password = newPassword;
+  await user.save({ validateBeforeSave: false });
+
+  return res.status(200).json({
+    status: 200,
+    success: true,
+    message: "user password changes successfully",
+    user: user,
+  });
+});
+
+const updateAvatar = asyncHandler(async function (req, res) {
+  try {
+    const user = req.user;
+
+    const avatarLocalPath = req.file?.path;
+    if (!avatarLocalPath) {
+      throw new ApiError(400, "file required");
+    }
+
+    let uploadedFileData;
+
+    uploadedFileData = await uploadOnCloudinary(avatarLocalPath);
+
+    const uploadedFileUrl = uploadedFileData.secure_url;
+
+    // todo: delete the replaced file from cloudinary
+    user.avatar = uploadedFileUrl;
+
+    await user.save({ validateBeforeSave: false });
+
+    return res.status(200).json({
+      status: 200,
+      success: true,
+      message: "avatar updated successfully",
+      avatarUrl: uploadedFileUrl,
+    });
+  } catch (error) {
+    if (req.file) fs.unlinkSync(req.file.path);
+    throw error;
+  }
+});
+
 export {
   registerUser,
   loginUser,
@@ -295,4 +362,6 @@ export {
   sendEmailVerification,
   verifyEmail,
   refreshAccessAndRefreshToken,
+  updatePassword,
+  updateAvatar,
 };
