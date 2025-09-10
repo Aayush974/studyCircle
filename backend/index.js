@@ -1,11 +1,25 @@
-import 'dotenv/config'
-import app from './app.js'
-import { connectDb } from './db/connectDb.js'
+import "dotenv/config";
+import app from "./app.js";
+import { connectDb } from "./db/connectDb.js";
+import { createServer } from "node:http";
+import { Server } from "socket.io";
 
-connectDb().then(()=>{
-     app.listen(process.env.PORT,()=>{
-        console.log("app started listening to port:",process.env.PORT)
-     })
-}).catch((err)=>{
-    console.log("toruble connecting to mongoDb error: ",err)
-})
+const server = createServer(app); // creating a node.js http server using express app
+const io = new Server(server); // creating a new socket.io server instance that share the same underlying HTTP server as express app
+
+io.on("connection", async function (socket) {
+  console.log("a socket connected to the server", socket.id);
+});
+
+connectDb()
+  .then(() => {
+    // Important: use server.listen instead of app.listen
+    // app.listen would internally create a *new* HTTP server instance, like app.createServer().listen
+    // server.listen ensures Express routes and Socket.IO share the same server & port.
+    server.listen(process.env.PORT, () => {
+      console.log("server started on port:", process.env.PORT);
+    });
+  })
+  .catch((err) => {
+    console.log("toruble connecting to mongoDb error: ", err);
+  });
