@@ -1,5 +1,5 @@
 import mongoose, { mongo } from "mongoose";
-
+import bcrypt from "bcrypt";
 const workspaceSchema = new mongoose.Schema(
   {
     name: {
@@ -27,6 +27,25 @@ const workspaceSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+// hashing the password
+workspaceSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
+  if(!this.password) return next();
+  try {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
+//method to validate the password
+workspaceSchema.methods.validatePassword = async function (userPassword) {
+  const isValid = await bcrypt.compare(userPassword, this.password);
+  return isValid;
+};
 
 const Workspace = mongoose.model("Workspace", workspaceSchema);
 
