@@ -8,7 +8,17 @@ const server = createServer(app); // creating a node.js http server using expres
 const io = new Server(server); // creating a new socket.io server instance that share the same underlying HTTP server as express app
 
 io.on("connection", async function (socket) {
-  console.log("a socket connected to the server", socket.id);
+  socket.on("joinWorkspace", (workspaceId) => {
+    socket.join(workspaceId);
+    console.log(`socket ${socket.id} joined room ${workspaceId}`);
+  });
+
+  socket.on("sendMsg", (data) => {
+    console.log(
+      `message received from ${socket.id}, broadcasting it to ${data.workspaceId}`
+    );
+    io.to(data.workspaceId).emit("receiveMsg", data.msg);
+  });
 });
 
 connectDb()
