@@ -44,4 +44,77 @@ const createMembership = async function (userId, targetId, targetType, role) {
   }
 };
 
-export { createMembership };
+// this function is used to get all the memberships having the same targetId like all the memberships of a given workspace
+const getAllMembership = async function (targetId) {
+  try {
+    const memberships = await Membership.find({
+      targetId,
+    });
+    if (memberships.length == 0)
+      throw new ApiError(
+        404,
+        `Membership under target ${targetId} does not exist`
+      );
+    return memberships;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// this function is used to delete all the memberships having the same targetId like all the memberships of a given workspace
+const deleteAllMemberships = async function (targetId) {
+  try {
+    const { deletedCount } = await Membership.deleteMany({ targetId });
+    if (deletedCount === 0) {
+      throw new ApiError(
+        404,
+        `Membership under target ${targetId} does not exist`
+      );
+    }
+    return deletedCount;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// single membership getter
+const getMembership = async function (targetId, userId) {
+  try {
+    const membership = await Membership.findOne({ targetId, userId });
+
+    if (!membership)
+      throw new ApiError(
+        404,
+        `Membership for user ${userId} under target ${targetId} does not exist`
+      );
+
+    return membership;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// single membership deleter
+const deleteMembership = async function (targetId, userId) {
+  try {
+    const membership = await Membership.findOneAndDelete({ targetId, userId });
+
+    if (!membership)
+      throw new ApiError(
+        404,
+        `Membership for user ${userId} under target ${targetId} does not exist`
+      );
+
+    return membership;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export {
+  createMembership,
+  getAllMembership,
+  deleteAllMemberships,
+  getMembership,
+  deleteMembership,
+};
