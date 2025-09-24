@@ -6,6 +6,7 @@ const workspaceSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
+      minLength: 4,
     },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
@@ -21,6 +22,9 @@ const workspaceSchema = new mongoose.Schema(
     },
     password: {
       type: String,
+      trim: true,
+      minLength: 5,
+      match: /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{5,}$/,
     },
   },
   {
@@ -31,7 +35,7 @@ const workspaceSchema = new mongoose.Schema(
 // hashing the password
 workspaceSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
-  if(!this.password) return next();
+  if (!this.password) return next();
   try {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);

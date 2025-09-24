@@ -16,7 +16,28 @@ const uploadOnCloudinary = async function (localFilePath) {
     });
     return uploadedFileData;
   } catch (error) {
-    console.error("Cloudinary Upload Error:", {
+    throw new ApiError(
+      error.http_code || 500,
+      error.message || "Cloudinary upload failed"
+    );
+  } finally {
+    fs.unlinkSync(localFilePath);
+  }
+};
+
+export const deleteFromCloudinary = async function (publicId) {
+  try {
+    const result = await cloudinary.uploader.destroy(publicId, {
+      resource_type: "image",
+    });
+
+    if (result.result !== "ok") {
+      throw new ApiError(400, `Failed to delete asset: ${result.result}`);
+    }
+
+    return result;
+  } catch (error) {
+    console.error("Cloudinary Delete Error:", {
       http_code: error.http_code,
       message: error.message,
       name: error.name,
@@ -25,10 +46,24 @@ const uploadOnCloudinary = async function (localFilePath) {
 
     throw new ApiError(
       error.http_code || 500,
-      error.message || "Cloudinary upload failed"
+      error.message || "Cloudinary delete failed"
     );
-  } finally {
-    fs.unlinkSync(localFilePath);
+  }
+};
+
+// this is a function to get the public id of cloudinary from the url of the image saved in the db
+export const getPublicIdFromUrl = function (url) {
+  try {
+    const parts = url.split("/upload/");
+    if (parts.length < 2) return null;
+
+    const path = parts[1]; // e.g. v1695113871/avatars/abc123.jpg
+    const withoutVersion = path.substring(path.indexOf("/") + 1); // remove v1695113871/
+    const withoutExtension = withoutVersion.replace(/\.[^/.]+$/, ""); // strip .jpg, .png, etc.
+
+    return withoutExtension; // e.g. "avatars/abc123"
+  } catch (err) {
+    return null;
   }
 };
 

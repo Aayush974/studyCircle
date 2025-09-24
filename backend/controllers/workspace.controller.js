@@ -9,7 +9,10 @@ import {
   getAllMembership,
   getMembership,
 } from "../utils/membership.js";
-import uploadOnCloudinary from "../utils/uploadOnCloudinary.js";
+import uploadOnCloudinary, {
+  deleteFromCloudinary,
+  getPublicIdFromUrl,
+} from "../utils/uploadOnCloudinary.js";
 import fs from "fs";
 
 // TODO: clear the cloudinary image from the cloudinary bucket also upon failures
@@ -34,9 +37,11 @@ const createWorkspace = asyncHandler(async (req, res) => {
     // the multer file is named avatar hence why we ues it here in the name convention but the database entry is under 'logo' for workspace image
     const localAvatarFilePath = req.file?.path;
     let uploadedFileUrl;
+    let publicId;
     if (localAvatarFilePath) {
       const uploadedFileData = await uploadOnCloudinary(localAvatarFilePath);
       uploadedFileUrl = uploadedFileData.secure_url;
+      publicId = uploadedFileData.public_id;
     }
 
     const workspace = await Workspace.create({
@@ -50,6 +55,11 @@ const createWorkspace = asyncHandler(async (req, res) => {
     const newWorkspace = workspace?.toObject();
 
     if (!newWorkspace) {
+      if (publicId) {
+        const deletedData = await deleteFromCloudinary(publicId);
+        console.log(deletedData);
+      }
+
       throw new ApiError(
         500,
         "something went wrong while creating the workspace"
@@ -125,8 +135,13 @@ const deleteWorkspace = asyncHandler(async (req, res) => {
     throw new ApiError(401, "you are not authorized to perform this action");
   }
 
+  const logoUrl = workspace.logo;
   const workspaceInstance = await Workspace.findByIdAndDelete(workspace._id);
   await deleteAllMemberships(workspaceId); // deleting all the memberships associated with the workspace
+  if (workspace.logo) {
+    const publicId = getPublicIdFromUrl(workspace.logo);
+    await deleteFromCloudinary(publicId);
+  }
 
   return res.status(200).json({
     status: 200,
@@ -233,14 +248,24 @@ const updateLogo = asyncHandler(async (req, res) => {
     }
 
     const localAvatarFilePath = req.file?.path;
-    let uploadedFileUrl;
-    if (localAvatarFilePath) {
-      const uploadedFileData = await uploadOnCloudinary(localAvatarFilePath);
-      uploadedFileUrl = uploadedFileData.secure_url;
+    if (!localAvatarFilePath) {
+      throw new ApiError(400, "file required");
+    }
+    let uploadedFileData;
+
+    uploadedFileData = await uploadOnCloudinary(localAvatarFilePath);
+    const uploadedFileUrl = uploadedFileData.secure_url;
+
+    // deleting the old image if it exists
+    if (workspace.logo) {
+      const publicId = getPublicIdFromUrl(workspace.logo);
+      await deleteFromCloudinary(publicId);
     }
 
     workspace.logo = uploadedFileUrl;
-    const updatedWorkspace = await workspace.save();
+    const updatedWorkspace = await workspace.save({
+      validateBeforeSave: false,
+    });
 
     if (!updatedWorkspace) {
       throw new ApiError(

@@ -2,11 +2,14 @@ import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import sendMail from "../utils/sendMail.js";
-import uploadOnCloudinary from "../utils/uploadOnCloudinary.js";
+import uploadOnCloudinary, {
+  deleteFromCloudinary,
+  getPublicIdFromUrl,
+} from "../utils/uploadOnCloudinary.js";
 import fs from "fs";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
-import { validateHeaderName } from "http";
+
 // fxn to handle the registering of users
 const registerUser = asyncHandler(async function (req, res, next) {
   // this try catch block,inspite of the asynHandler, is required to remove any files stored in temp folder provided that any error occurs, if not done the junk files will keep on accumulating locally
@@ -34,10 +37,11 @@ const registerUser = asyncHandler(async function (req, res, next) {
     //getting the localAvatar file path to upload it to cloudinary
     const localAvatarFilePath = req.file?.path;
     let uploadedFileUrl;
-
+    let publicId;
     if (localAvatarFilePath) {
       const uploadedFileData = await uploadOnCloudinary(localAvatarFilePath);
       uploadedFileUrl = uploadedFileData.secure_url;
+      publicId = uploadedFileData.public_id;
     }
 
     // creating a new user
@@ -50,11 +54,15 @@ const registerUser = asyncHandler(async function (req, res, next) {
 
     const newUser = user?.toObject();
 
-    if (!newUser)
+    if (!newUser) {
+      if (publicId) {
+        await deleteFromCloudinary(publicId);
+      }
       throw new ApiError(
         500,
         "something went wrong while registering the suer"
       );
+    }
 
     delete newUser.password;
 
@@ -306,7 +314,7 @@ const updatePassword = asyncHandler(async function (req, res) {
   if (!user) {
     throw new ApiError(404, "user not found");
   }
-  
+
   const isPasswordValid = user.validatePassword(oldPassword);
   if (!isPasswordValid) {
     throw new ApiError(403, "the password is incorrect");
@@ -338,7 +346,12 @@ const updateAvatar = asyncHandler(async function (req, res) {
 
     const uploadedFileUrl = uploadedFileData.secure_url;
 
-    // todo: delete the replaced file from cloudinary
+    // deleting old user avatar if it exists
+    if (user.avatar) {
+      const publicId = getPublicIdFromUrl(user.avatar);
+      await deleteFromCloudinary(publicId);
+    }
+
     user.avatar = uploadedFileUrl;
 
     await user.save({ validateBeforeSave: false });
