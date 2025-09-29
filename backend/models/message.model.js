@@ -20,7 +20,7 @@ const messageSchema = new mongoose.Schema(
       lowercase: true,
       enum: ["workspace", "studyRoom", "user"],
     },
-    attaachemnts: [
+    attachments: [
       {
         fileUrl: {
           type: String,
@@ -41,6 +41,10 @@ const messageSchema = new mongoose.Schema(
           type: Number,
           required: true,
         },
+        publicId: {
+          type: String,
+          required: true,
+        },
       },
     ],
   },
@@ -50,14 +54,14 @@ const messageSchema = new mongoose.Schema(
 );
 
 messageSchema.index({
-    targetId:1,
-    targetType:1,
-    createdAt: -1
-})
+  targetId: 1,
+  targetType: 1,
+  createdAt: -1,
+});
 
 messageSchema.index({
-    senderId: 1
-})
+  senderId: 1,
+});
 
 const Message = mongoose.model("Message", messageSchema);
 

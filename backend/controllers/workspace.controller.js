@@ -15,7 +15,6 @@ import uploadOnCloudinary, {
 } from "../utils/uploadOnCloudinary.js";
 import fs from "fs";
 
-// TODO: clear the cloudinary image from the cloudinary bucket also upon failures
 const createWorkspace = asyncHandler(async (req, res) => {
   try {
     const { name, passwordRequired } = req.body;
@@ -56,8 +55,7 @@ const createWorkspace = asyncHandler(async (req, res) => {
 
     if (!newWorkspace) {
       if (publicId) {
-        const deletedData = await deleteFromCloudinary(publicId);
-        console.log(deletedData);
+        await deleteFromCloudinary(publicId);
       }
 
       throw new ApiError(
@@ -102,7 +100,6 @@ const joinWorkspace = asyncHandler(async (req, res) => {
   // if password required check its correctness
   if (passwordRequired) {
     let isPasswordValid = await workspace.validatePassword(password);
-    console.log(isPasswordValid);
     if (!isPasswordValid) {
       throw new ApiError(401, "wrong password entered");
     }
@@ -205,7 +202,6 @@ const updateName = asyncHandler(async (req, res) => {
 
   // name can be update by either an admin or the owner
   const membership = await getMembership(workspaceId, req.user._id.toString());
-  console.log(membership);
   if (membership.role == "member") {
     throw new ApiError(401, "action requires an admin or owner");
   }

@@ -1,6 +1,5 @@
 // the membership schema is used to keep record of the joining of users happening in studyCircles/workspaces
 import mongoose from "mongoose";
-import { Workspace } from "./workspace.model.js";
 
 const membershipSchema = new mongoose.Schema(
   {
@@ -31,6 +30,11 @@ const membershipSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+membershipSchema.index({
+  targetId: 1,
+  userId: 1,
+});
 
 const Membership = mongoose.model("Membership", membershipSchema);
 
