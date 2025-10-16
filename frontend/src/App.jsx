@@ -1,4 +1,12 @@
-const App = function(){
-}
+import Input from "./components/Input";
+import SignUpForm from "./components/SignupForm";
 
-export default App
+const App = function () {
+  return (
+    <>
+    <SignUpForm/>
+    </>
+  );
+};
+
+export default App;
