@@ -1,2 +1,15 @@
+@import "react-toastify/dist/ReactToastify.css";
 @import "tailwindcss";
 @plugin "daisyui";
+
+/* matching toastify's theme to daisyui's theme */
+:root {
+  --toastify-color-success: var(--color-primary);
+  --toastify-color-error: var(--color-error);
+  --toastify-color-warning: var(--color-warning);
+  --toastify-color-info: var(--color-info);
+  --toastify-toast-background: var(--color-base-100);
+  --toastify-text-color-light: var(--color-base-content);
+  --toastify-color-dark: var(--color-base-100);
+  --toastify-color-light: var(--color-base-100)
+}

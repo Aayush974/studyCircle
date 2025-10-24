@@ -1,5 +1,5 @@
 import cors from "cors"
-import e, { urlencoded } from "express";
+import e, { json, urlencoded } from "express";
 import cookieParser from "cookie-parser"
 import { userRouter } from "./routes/user.routes.js";
 import workspaceRouter from "./routes/workspace.routes.js";
@@ -21,6 +21,7 @@ const app = e()
 app.use(cors(corsOptions))
 app.use(urlencoded())
 app.use(cookieParser())
+app.use(json())
 app.use("/api/v1/users",userRouter)
 app.use("/api/v1/workspace",workspaceRouter)
 app.use("/api/v1/messages",messageRouter)

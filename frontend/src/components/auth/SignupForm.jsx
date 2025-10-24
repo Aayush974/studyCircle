@@ -1,19 +1,37 @@
 import { useForm } from "react-hook-form";
-import Input from "./Input";
+import { Input } from "../index";
 import { useState } from "react";
-import { registerUser } from "../api/user.api";
-
+import { registerUser } from "../../api/user.api";
+import { useNavigate } from "react-router-dom";
 const SignUpForm = function () {
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
-  const [preview, setPreview] = useState(null);
 
-  const onSubmit = (data) => {
-    data.avatar = data.avatar?.[0]
-    registerUser(data)
+  const navigate = useNavigate();
+  const [preview, setPreview] = useState(null); // handles the preview of the image file
+
+  const onSubmit = async (data) => {
+    data.avatar = data.avatar?.[0]; // we require only one file for the api call
+
+    const res = await registerUser(data);
+
+    if (res.status > 400 && res.error) {
+      // if error occurred
+      ShowToast(res.error?.message, {
+        type: "error",
+      });
+      return;
+    }
+
+    ShowToast(res.data?.message, {
+      type: "success",
+      onClose: () => {
+        navigate("/auth/login"); // navigate to login upon successful signup
+      },
+    });
   };
 
   const handlePreview = (e) => {
@@ -25,12 +43,11 @@ const SignUpForm = function () {
 
   return (
     <>
-      <div className="w-120 rounded-md p-4">
+      <div className="sm:w-100 rounded-md p-4">
         <form
           onSubmit={handleSubmit(onSubmit)}
           className="w-full flex flex-col justify-between items-center gap-4 "
         >
-
           {/* username field */}
           <div className="w-full flex flex-col justify-evenly gap-1">
             <label htmlFor="username">username</label>
@@ -79,7 +96,11 @@ const SignUpForm = function () {
               {...register("password", {
                 required: true,
                 minLength: { value: 5, message: "must be 5 character long" },
-                pattern: {value:/^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{5,}$/, message:"must have atlease 1 capital, 1 special and 1 number character"}
+                pattern: {
+                  value: /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{5,}$/,
+                  message:
+                    "must have atlease 1 capital, 1 special and 1 number character",
+                },
               })}
               type={"password"}
               className={"input"}

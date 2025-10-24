@@ -98,7 +98,7 @@ const loginUser = asyncHandler(async function (req, res, next) {
   }
 
   // schema method used to verify the hashed password by bcrypt
-  const isPasswordValid = user.validatePassword(password);
+  const isPasswordValid = await user.validatePassword(password);
 
   if (!isPasswordValid) {
     throw new ApiError(401, "the password entered is wrong");
