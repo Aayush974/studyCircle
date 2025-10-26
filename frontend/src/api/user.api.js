@@ -1,5 +1,5 @@
 import { api } from "./axios.config.js";
-
+import axios from "axios";
 const registerUser = async function (data) {
   try {
     const res = await api.post(`/users/register`, data, {
@@ -21,8 +21,9 @@ const registerUser = async function (data) {
 
 const loginUser = async function (data) {
   try {
-    const res = await api.post(`/users/login`, data, {
+    const res = await axios.post(`/api/users/login`, data, { // using axios here and not api since have to use vite's proxy here, else the cookie is not being set in the browser
       headers: { "Content-Type": "application/json" },
+      withCredentials: true
     });
     return {
       status: res.status,

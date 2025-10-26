@@ -115,7 +115,10 @@ const loginUser = asyncHandler(async function (req, res, next) {
   // cookie options
   const options = {
     httpOnly: true,
-    secure: true,
+    // setting cookie attributes by checking dev mode
+    secure:  process.env.NODE_ENV == "production" ? true : false,
+    sameSite: process.env.NODE_ENV == "production" ? "none": "lax",
+    maxAge: 10 * 24 * 60 * 60 * 1000, // 10 days max age
   };
 
   return res
@@ -126,8 +129,6 @@ const loginUser = asyncHandler(async function (req, res, next) {
       status: 200,
       success: true,
       user,
-      refreshToken,
-      accessToken,
       message: "user logged in successfully",
     });
 });

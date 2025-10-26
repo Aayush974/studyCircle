@@ -4,6 +4,7 @@ import { loginUser } from "../../api/user.api";
 import { ShowToast } from "../../utils/ShowToast";
 import { useNavigate } from "react-router-dom";
 import useUser from "../../zustand/user.store";
+import useSocket from "../../zustand/socket.store";
 
 const LoginForm = function () {
   const {
@@ -12,6 +13,7 @@ const LoginForm = function () {
     formState: { errors },
   } = useForm();
   const { setUser, user } = useUser();
+  const {setSocket} = useSocket();
   const navigate = useNavigate();
 
   const onSubmit = async (data) => {
@@ -24,16 +26,15 @@ const LoginForm = function () {
       });
       return;
     }
-
-    JSON.stringify();
+    
     setUser(res.data?.user);
+    setSocket(res.data?.user)
     ShowToast(res.data?.message, {
       type: "success",
       onClose: () => {
-        navigate("/auth/signup");
+       // navigate("/auth/signup");
       },
     });
-    console.log(user);
   };
 
   return (

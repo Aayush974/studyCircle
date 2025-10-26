@@ -3,23 +3,19 @@ import app from "./app.js";
 import { connectDb } from "./db/connectDb.js";
 import { createServer } from "node:http";
 import { Server } from "socket.io";
-
+import { userSocket } from "./socket/user.socket.js";
+import verifySocket from "./middlewares/socketAuth.middleware.js";
 const server = createServer(app); // creating a node.js http server using express app
-const io = new Server(server); // creating a new socket.io server instance that share the same underlying HTTP server as express app
+const io = new Server(server,{
+  cors:{
+    origin:process.env.LOCAL_ENV_URL_CORS,
+    credentials:true,
+  }
+}); // creating a new socket.io server instance that share the same underlying HTTP server as express app
 
-io.on("connection", async function (socket) {
-  socket.on("joinWorkspace", (workspaceId) => {
-    socket.join(workspaceId);
-    console.log(`socket ${socket.id} joined room ${workspaceId}`);
-  });
+io.use(verifySocket) // auth middleware for socket connection
 
-  socket.on("sendMsg", (data) => {
-    console.log(
-      `message received from ${socket.id}, broadcasting it to ${data.workspaceId}`
-    );
-    io.to(data.workspaceId).emit("receiveMsg", data.msg);
-  });
-});
+userSocket(io)
 
 connectDb()
   .then(() => {
