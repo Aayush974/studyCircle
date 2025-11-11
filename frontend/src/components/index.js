@@ -4,4 +4,8 @@ import SignUpForm from "./auth/SignupForm";
 import Input from "./common/Input";
 import LoginForm from "./auth/LoginForm";
 import Toast from "./common/Toast";
-export { FlexContainer, Heading, SignUpForm, Input, LoginForm, Toast };
+import Image from "./common/Image";
+import HomeTitle from "./home/HomeTitle";
+import HomeAbout from "./home/HomeAbout"
+import HomeFooter from "./home/HomeFooter";
+export { FlexContainer, Heading, SignUpForm, Input, LoginForm, Toast, Image, HomeTitle, HomeAbout,HomeFooter };
