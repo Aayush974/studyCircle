@@ -6,6 +6,21 @@ import LoginForm from "./auth/LoginForm";
 import Toast from "./common/Toast";
 import Image from "./common/Image";
 import HomeTitle from "./home/HomeTitle";
-import HomeAbout from "./home/HomeAbout"
+import HomeAbout from "./home/HomeAbout";
 import HomeFooter from "./home/HomeFooter";
-export { FlexContainer, Heading, SignUpForm, Input, LoginForm, Toast, Image, HomeTitle, HomeAbout,HomeFooter };
+import UserProfile from "./profile/UserProfile";
+import UserWorkspaces from "./profile/UserWorkspaces";
+export {
+  FlexContainer,
+  Heading,
+  SignUpForm,
+  Input,
+  LoginForm,
+  Toast,
+  Image,
+  HomeTitle,
+  HomeAbout,
+  HomeFooter,
+  UserProfile,
+  UserWorkspaces,
+};

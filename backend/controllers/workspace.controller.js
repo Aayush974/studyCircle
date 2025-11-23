@@ -164,6 +164,51 @@ const getWorkspace = asyncHandler(async (req, res) => {
   });
 });
 
+const getUserWorkspaces = asyncHandler(async (req, res) => {
+  const { userId } = req.query;
+  const workspaces = await Membership.aggregate([
+    {
+      // getting the required memberships
+      $match: {
+        userId: userId,
+        targetType: "workspace",
+      },
+    },
+    {
+      // adding a new field to convert the targetId string to ObjectId type for lookup
+      $addFields: {
+        workspaceObjectId: { $toObjectId: "$targetId" },
+      },
+    },
+    {
+      // looking up the workspaces collection to get the workspace details
+      $lookup: {
+        from: "workspaces",
+        localField: "workspaceObjectId",
+        foreignField: "_id",
+        as: "workspace",
+      },
+    },
+    {
+      // unwind the workspace arry to get individual workspace documents
+      $unwind: "$workspace",
+    },
+    {
+      // replace the root since membership details are not required only workspace
+      $replaceRoot: { newRoot: "$workspace" },
+    },
+  ]);
+  if (!workspaces) {
+    throw new ApiError(404, "workspaces not found");
+  }
+  return res.status(200).json({
+    status: 200,
+    success: true,
+    message: "fetched workspaces data successfully",
+    workspaces,
+  });
+});
+
 const getMemberships = asyncHandler(async (req, res) => {
   const { workspaceId } = req.body;
   const workspace = await Workspace.findById(workspaceId);
@@ -404,4 +449,5 @@ export {
   removeAdmin,
   joinWorkspace,
   leaveWorkspace,
+  getUserWorkspaces,
 };

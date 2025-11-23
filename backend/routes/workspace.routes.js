@@ -11,6 +11,7 @@ import {
   removeAdmin,
   updateLogo,
   updateName,
+  getUserWorkspaces
 } from "../controllers/workspace.controller.js";
 import uploadMiddleware from "../middlewares/multer.middleware.js";
 
@@ -26,6 +27,7 @@ workspaceRouter.post("/join-workspace", verifyJwt, joinWorkspace);
 workspaceRouter.post("/leave-workspace", verifyJwt, leaveWorkspace);
 workspaceRouter.get("/get-workspace/data", verifyJwt, getWorkspace);
 workspaceRouter.get("/get-workspace/memberships", verifyJwt, getMemberships);
+workspaceRouter.get("/get-user/workspaces", verifyJwt, getUserWorkspaces);
 workspaceRouter.patch("/update/name", verifyJwt, updateName);
 workspaceRouter.patch("/update/logo", uploadMiddleware, verifyJwt, updateLogo);
 workspaceRouter.patch("/update/add-admin", verifyJwt, addAdmin);

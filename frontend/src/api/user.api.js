@@ -27,7 +27,7 @@ const loginUser = async function (data) {
     });
     return {
       status: res.status,
-      data: res.data, // reminder: this contains refresh and access token also
+      data: res.data, 
       error: null,
     };
   } catch (error) {
