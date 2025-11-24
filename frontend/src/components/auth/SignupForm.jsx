@@ -20,7 +20,7 @@ const SignUpForm = function () {
 
     if (res.status > 400 && res.error) {
       // if error occurred
-      ShowToast(res.error?.message, {
+      ShowToast(res.error, {
         type: "error",
       });
       return;

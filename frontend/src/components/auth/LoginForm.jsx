@@ -13,7 +13,7 @@ const LoginForm = function () {
     formState: { errors },
   } = useForm();
   const { setUser, user } = useUser();
-  const {setSocket} = useSocket();
+  const { setSocket } = useSocket();
   const navigate = useNavigate();
 
   const onSubmit = async (data) => {
@@ -21,18 +21,18 @@ const LoginForm = function () {
 
     if (res.status > 400 && res.error) {
       // if error occured
-      ShowToast(res.error?.message, {
+      ShowToast(res.error, {
         type: "error",
       });
       return;
     }
-    
+
     setUser(res.data?.user);
-    setSocket(res.data?.user)
+    setSocket(res.data?.user);
     ShowToast(res.data?.message, {
       type: "success",
       onClose: () => {
-       // navigate("/auth/signup");
+        // navigate("/auth/signup");
       },
     });
   };
