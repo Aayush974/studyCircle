@@ -1,5 +1,6 @@
 import { api } from "./axios.config.js";
 import axios from "axios";
+
 const registerUser = async function (data) {
   try {
     const res = await api.post(`/users/register`, data, {
@@ -21,13 +22,14 @@ const registerUser = async function (data) {
 
 const loginUser = async function (data) {
   try {
-    const res = await axios.post(`/api/users/login`, data, { // using axios here and not api since have to use vite's proxy here, else the cookie is not being set in the browser
+    const res = await axios.post(`/api/users/login`, data, {
+      // using axios here and not api since have to use vite's proxy here, else the cookie is not being set in the browser
       headers: { "Content-Type": "application/json" },
-      withCredentials: true
+      withCredentials: true,
     });
     return {
       status: res.status,
-      data: res.data, 
+      data: res.data,
       error: null,
     };
   } catch (error) {
@@ -39,4 +41,27 @@ const loginUser = async function (data) {
   }
 };
 
-export { registerUser, loginUser };
+const logoutUser = async () => {
+  try {
+    const res = await axios.post(
+      "/api/users/logout",
+      {}, // empty data since logout is cookie based
+      {
+        withCredentials: true,
+      }
+    );
+    return {
+      status: res.status,
+      data: res.data,
+      error: null,
+    };
+  } catch (error) {
+    return {
+      status: error.response?.status || 400,
+      data: null,
+      error: error.response?.data || "something went wrong",
+    };
+  }
+};
+
+export { registerUser, loginUser,logoutUser };

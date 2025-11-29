@@ -10,6 +10,7 @@ import HomeAbout from "./home/HomeAbout";
 import HomeFooter from "./home/HomeFooter";
 import UserProfile from "./profile/UserProfile";
 import UserWorkspaces from "./profile/UserWorkspaces";
+import ProtectedRoute from "./routeMiddleware/ProtectedRoute";
 export {
   FlexContainer,
   Heading,
@@ -23,4 +24,5 @@ export {
   HomeFooter,
   UserProfile,
   UserWorkspaces,
+  ProtectedRoute
 };

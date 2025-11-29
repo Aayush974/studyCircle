@@ -6,6 +6,8 @@ import {
 } from "react-router-dom";
 import { Login, Signup, Home, Profile } from "./pages";
 import { ToastContainer } from "react-toastify";
+import { ProtectedRoute } from "./components";
+
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
@@ -14,7 +16,9 @@ const router = createBrowserRouter(
         <Route path="signup" element={<Signup />} />
         <Route path="login" element={<Login />} />
       </Route>
-      <Route path="profile" element={<Profile />} />
+      <Route element={<ProtectedRoute />}>
+        <Route path="profile" element={<Profile />} />
+      </Route>
     </>
   )
 );

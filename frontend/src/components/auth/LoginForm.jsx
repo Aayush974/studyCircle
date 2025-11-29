@@ -32,7 +32,7 @@ const LoginForm = function () {
     ShowToast(res.data?.message, {
       type: "success",
       onClose: () => {
-        // navigate("/auth/signup");
+        navigate("/profile");
       },
     });
   };
@@ -92,6 +92,16 @@ const LoginForm = function () {
           <div className="w-full flex justify-center items-center mt-8">
             <button className="btn btn-primary">Submit</button>
           </div>
+
+          {/* signup form link */}
+          <i
+            onClick={() => {
+              navigate("/auth/signup");
+            }}
+            className="w-full flex justify-start items-center mt-4 text-gray-400 opacity-70 hover:text-gray-300 hover:opacity-100 transition-all cursor-pointer"
+          >
+            Don't have an account? Signup
+          </i>
         </form>
       </div>
     </>

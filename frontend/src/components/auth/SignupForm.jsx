@@ -153,6 +153,16 @@ const SignUpForm = function () {
           <div className="w-full flex justify-center items-center">
             <button className="btn btn-primary">Submit</button>
           </div>
+
+          {/* login form link */}
+          <i
+            onClick={() => {
+              navigate("/auth/login");
+            }}
+            className="w-full flex justify-start items-center mt-4 text-gray-400 opacity-70 hover:text-gray-300 hover:opacity-100 transition-all cursor-pointer"
+          >
+            Already have an account? Login
+          </i>
         </form>
       </div>
     </>
