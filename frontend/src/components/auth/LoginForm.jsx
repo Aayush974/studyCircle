@@ -21,7 +21,7 @@ const LoginForm = function () {
 
     if (res.status > 400 && res.error) {
       // if error occured
-      ShowToast(res.error, {
+      ShowToast(res.error?.message, {
         type: "error",
       });
       return;

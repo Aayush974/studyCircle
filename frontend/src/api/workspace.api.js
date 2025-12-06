@@ -21,4 +21,24 @@ const getUserWorkspaces = async function (userId) {
   }
 };
 
-export { getUserWorkspaces };
+const createWorkspace = async function (data) {
+  try {
+    const res = await axios.post("/api/workspace/create-workspace", data, {
+      headers: { "Content-Type": "multipart/form-data" },
+      withCredentials: true,
+    });
+    return {
+      status: res.status,
+      data: res.data,
+      error: null,
+    };
+  } catch (error) {
+    return {
+      status: error.response?.status || 500,
+      data: null,
+      error: error.response?.data || "something went wrong",
+    };
+  }
+};
+
+export { getUserWorkspaces, createWorkspace };
