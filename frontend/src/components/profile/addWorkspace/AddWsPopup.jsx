@@ -1,9 +1,12 @@
 import { useRef } from "react";
 import { IoAddCircleOutline } from "react-icons/io5";
 import CreateWorkspaceModal from "./createWorkspace";
+import JoinWorkspaceModal from "./JoinWorkspace";
+
 const AddWsPopup = () => {
   const modalRef = useRef();
   const createWorkspaceRef = useRef();
+  const joinWorkspaceRef = useRef();
   return (
     <>
       {/* dialog open button */}
@@ -28,10 +31,17 @@ const AddWsPopup = () => {
           >
             Create workspace
           </button>
-          <button className="btn w-1/2 p-4 rounded-sm text-lg md:text-xl lg:text-2xl">
+          <button
+            onClick={() => {
+              modalRef.current?.close();
+              joinWorkspaceRef.current?.showModal();
+            }}
+            className="btn w-1/2 p-4 rounded-sm text-lg md:text-xl lg:text-2xl"
+          >
             Join workspace
           </button>
           <CreateWorkspaceModal dialogRef={createWorkspaceRef} />
+          <JoinWorkspaceModal dialogRef={joinWorkspaceRef} />
           <dialog></dialog>
           {/* dialog close */}
           <div className="absolute top-1 right-1 m-0 ">

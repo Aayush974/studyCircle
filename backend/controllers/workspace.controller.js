@@ -233,6 +233,29 @@ const getMemberships = asyncHandler(async (req, res) => {
   });
 });
 
+const searchWorkspaces = asyncHandler(async (req, res) => {
+  const { name } = req.query;
+
+  if (!name) {
+    throw new ApiError(400, "search name is required");
+  }
+
+  const workspaces = await Workspace.find({
+    name: { $regex: name, $options: "i" }, // case-insensitive partial match
+  }).select("-password");
+
+  if (!workspaces || workspaces.length === 0) {
+    throw new ApiError(404, "no matching workspaces found");
+  }
+
+  return res.status(200).json({
+    status: 200,
+    success: true,
+    message: "workspaces fetched successfully",
+    workspaces, // always an array
+  });
+});
+
 const updateName = asyncHandler(async (req, res) => {
   const { workspaceId, name } = req.body;
 
@@ -450,4 +473,5 @@ export {
   joinWorkspace,
   leaveWorkspace,
   getUserWorkspaces,
+  searchWorkspaces,
 };
