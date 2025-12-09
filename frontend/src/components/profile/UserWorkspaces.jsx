@@ -15,24 +15,18 @@ const UserWorkspaces = function () {
     (async () => {
       if (!userId) return;
       setLoading(true);
-      try {
-        const res = await getUserWorkspaces(userId);
-        if (res.status > 400 && res.error) {
-          ShowToast(res.error, {
-            type: "error",
-          });
-          setWorkspaces([]);
-          return;
-        }
-        setWorkspaces(res.data.workspaces || []);
-      } catch (err) {
-        ShowToast(err?.message || err || "Failed to fetch workspaces", {
+
+      const res = await getUserWorkspaces(userId);
+      if (res.status > 400 && res.error) {
+        ShowToast(res.error, {
           type: "error",
         });
         setWorkspaces([]);
-      } finally {
         setLoading(false);
+        return;
       }
+      setWorkspaces(res.data?.workspaces || []);
+      setLoading(false);
     })();
   }, [userId]);
 
