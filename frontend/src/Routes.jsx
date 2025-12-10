@@ -4,7 +4,7 @@ import {
   Route,
   RouterProvider,
 } from "react-router-dom";
-import { Login, Signup, Home, Profile } from "./pages";
+import { Login, Signup, Home, Profile, Workspace } from "./pages";
 import { ToastContainer } from "react-toastify";
 import { ProtectedRoute } from "./components";
 
@@ -18,6 +18,7 @@ const router = createBrowserRouter(
       </Route>
       <Route element={<ProtectedRoute />}>
         <Route path="profile" element={<Profile />} />
+        <Route path="/workspace/:workspaceId" element={<Workspace />} />
       </Route>
     </>
   )

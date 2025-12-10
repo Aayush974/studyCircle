@@ -82,4 +82,30 @@ const joinWorkspace = async function (data) {
   }
 };
 
-export { getUserWorkspaces, createWorkspace, searchWorkspace, joinWorkspace };
+const fetchWorkspace = async function (id) {
+  try {
+    const res = await axios.get(`/api/workspace/get-workspace/${id}`, {
+      eaders: { "Content-Type": "application/json" },
+      withCredentials: true,
+    });
+    return {
+      status: res.status,
+      data: res.data,
+      error: null,
+    };
+  } catch (error) {
+    return {
+      status: error.response?.status || 500,
+      data: null,
+      error: error.response?.data || "something went wrong",
+    };
+  }
+};
+
+export {
+  getUserWorkspaces,
+  createWorkspace,
+  searchWorkspace,
+  joinWorkspace,
+  fetchWorkspace,
+};

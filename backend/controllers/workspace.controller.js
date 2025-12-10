@@ -149,7 +149,7 @@ const deleteWorkspace = asyncHandler(async (req, res) => {
 });
 
 const getWorkspace = asyncHandler(async (req, res) => {
-  const { workspaceId } = req.body;
+  const { workspaceId } = req.params;
   const workspace = await Workspace.findById(workspaceId);
 
   if (!workspace) {

@@ -4,11 +4,13 @@ import { getUserWorkspaces } from "../../api/workspace.api.js";
 import useUser from "../../zustand/user.store.js";
 import { ShowToast } from "../../utils/ShowToast.jsx";
 import AddWsPopup from "./addWorkspace/AddWsPopup.jsx";
+import { useNavigate } from "react-router-dom";
 const UserWorkspaces = function () {
   const [workspaces, setWorkspaces] = useState([]);
   const [loading, setLoading] = useState(true);
   const { user } = useUser();
   const userId = user?._id;
+  const navigate = useNavigate();
 
   useEffect(() => {
     // call api using async iife
@@ -58,6 +60,9 @@ const UserWorkspaces = function () {
               return (
                 <div
                   key={id}
+                  onClick={() => {
+                    navigate(`/workspace/${id}`);
+                  }}
                   className="card bg-base-100 w-96 h-65 shadow-sm shadow-gray-300 hover:shadow-md hover:shadow-gray-500 rounded-md transition-shadow  "
                 >
                   <figure className="w-full h-8/10">

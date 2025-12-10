@@ -12,7 +12,7 @@ import {
   updateLogo,
   updateName,
   getUserWorkspaces,
-  searchWorkspaces
+  searchWorkspaces,
 } from "../controllers/workspace.controller.js";
 import uploadMiddleware from "../middlewares/multer.middleware.js";
 
@@ -26,10 +26,10 @@ workspaceRouter.post(
 );
 workspaceRouter.post("/join-workspace", verifyJwt, joinWorkspace);
 workspaceRouter.post("/leave-workspace", verifyJwt, leaveWorkspace);
-workspaceRouter.get("/get-workspace/data", verifyJwt, getWorkspace);
+workspaceRouter.get("/get-workspace/:workspaceId", verifyJwt, getWorkspace);
 workspaceRouter.get("/get-workspace/memberships", verifyJwt, getMemberships);
 workspaceRouter.get("/get-user/workspaces", verifyJwt, getUserWorkspaces);
-workspaceRouter.get("/search",verifyJwt,searchWorkspaces)
+workspaceRouter.get("/search", verifyJwt, searchWorkspaces);
 workspaceRouter.patch("/update/name", verifyJwt, updateName);
 workspaceRouter.patch("/update/logo", uploadMiddleware, verifyJwt, updateLogo);
 workspaceRouter.patch("/update/add-admin", verifyJwt, addAdmin);
