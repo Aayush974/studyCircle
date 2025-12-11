@@ -7,7 +7,7 @@ const useWorkspace = create((set, get) => ({
   },
   setworkspaceByIds: (data) => {
     if (!data) return;
-    const exists = get.workspaceByIds[data._id]; // if ws data already exists in the store
+    const exists = get().workspaceByIds[data._id]; // if ws data already exists in the store
     if (exists) return;
     set((state) => ({
       workspaceByIds: {
