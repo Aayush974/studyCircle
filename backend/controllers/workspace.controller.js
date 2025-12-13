@@ -72,7 +72,7 @@ const createWorkspace = asyncHandler(async (req, res) => {
       throw error;
     }
 
-    delete workspace.password;
+    delete newWorkspace.password;
 
     return res.status(201).json({
       status: 200,

@@ -5,6 +5,23 @@ const useWorkspace = create((set, get) => ({
     // this struccture is used for potential caching features to be implemented later on down the line
     // wsId: {wsDetails}
   },
+  studyRooms: [], // holds the list of study rooms of the current workspace
+  setStudyRooms: (rooms) => {
+    if (!Array.isArray(rooms)) return;
+
+    set((state) => {
+      const prev = state.studyRooms;
+      //
+      if (
+        prev.length === rooms.length &&
+        prev.every((r, i) => r._id === rooms[i]?._id)
+      ) {
+        return state;
+      }
+
+      return { studyRooms: rooms };
+    });
+  },
   setworkspaceByIds: (data) => {
     if (!data) return;
     const exists = get().workspaceByIds[data._id]; // if ws data already exists in the store

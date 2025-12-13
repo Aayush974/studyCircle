@@ -22,30 +22,30 @@ const Workspace = () => {
     if (!(workspaceId in workspaceByIds)) {
       (async () => {
         const res = await fetchWorkspace(workspaceId);
-        console.log(res);
         setworkspaceByIds(res.data?.workspace);
       })();
     }
   }, [workspaceId, workspaceByIds, setworkspaceByIds]);
 
-  if (!socket) {
-    return (
-      <div className="w-screen h-screen flex justify-center items-center">
-        <main className="flex flex-col gap-8 items-center justify-center">
-          <p className=" text-2xl md:text-3xl lg:text-4xl  xl:text-5xl ">
-            {" "}
-            Had trouble establishing connection
-          </p>
-          <button
-            onClick={reConnect}
-            className="btn btn-primary p-8 text-center text-2xl md:text-3xl lg:text-4xl "
-          >
-            Try again
-          </button>
-        </main>
-      </div>
-    );
-  }
+  // this is causing unecessary ui changes so commenting it out for now will figure something later
+  // if (!socket) {
+  //   return (
+  //     <div className="w-screen h-screen flex justify-center items-center">
+  //       <main className="flex flex-col gap-8 items-center justify-center">
+  //         <p className=" text-2xl md:text-3xl lg:text-4xl  xl:text-5xl ">
+  //           {" "}
+  //           Had trouble establishing connection
+  //         </p>
+  //         <button
+  //           onClick={reConnect}
+  //           className="btn btn-primary p-8 text-center text-2xl md:text-3xl lg:text-4xl "
+  //         >
+  //           Try again
+  //         </button>
+  //       </main>
+  //     </div>
+  //   );
+  // }
 
   return (
     <>

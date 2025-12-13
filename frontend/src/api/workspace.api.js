@@ -85,7 +85,7 @@ const joinWorkspace = async function (data) {
 const fetchWorkspace = async function (id) {
   try {
     const res = await axios.get(`/api/workspace/get-workspace/${id}`, {
-      eaders: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json" },
       withCredentials: true,
     });
     return {
