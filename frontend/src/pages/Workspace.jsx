@@ -1,22 +1,21 @@
 import { useEffect } from "react";
-import { WsSidebar } from "../components";
-import useSocket from "../zustand/socket.store";
+import { WsSidebar, WsGeneral } from "../components";
 import useUser from "../zustand/user.store";
 import useWorkspace from "../zustand/useWorkspace";
 import { useParams } from "react-router-dom";
 import { fetchWorkspace } from "../api/workspace.api";
+import { enterWorkspace } from "../socket/socketController";
 
 const Workspace = () => {
-  const { socket, setSocket } = useSocket();
   const { user } = useUser();
   const { workspaceByIds, setworkspaceByIds } = useWorkspace();
   const { workspaceId } = useParams();
 
   // a reconnect option is given incase the socket connection fails due to some technical issues on the SocketInit component
-  const reConnect = () => {
-    if (!user) return;
-    setSocket(user);
-  };
+  // const reConnect = () => {
+  //   if (!user) return;
+  //   setSocket(user);
+  // };
 
   useEffect(() => {
     if (!(workspaceId in workspaceByIds)) {
@@ -27,6 +26,9 @@ const Workspace = () => {
     }
   }, [workspaceId, workspaceByIds, setworkspaceByIds]);
 
+  useEffect(() => {
+    enterWorkspace(workspaceId, user);
+  }, [workspaceId, user]);
   // this is causing unecessary ui changes so commenting it out for now will figure something later
   // if (!socket) {
   //   return (
@@ -48,9 +50,14 @@ const Workspace = () => {
   // }
 
   return (
-    <>
-      <WsSidebar />
-    </>
+    <div className="flex w-screen h-screen overflow-hidden">
+      <div className="basis-3/10 h-full">
+        <WsSidebar />
+      </div>
+      <main className="basis-7/10 h-full flex flex-col min-h-0">
+        <WsGeneral />
+      </main>
+    </div>
   );
 };
 

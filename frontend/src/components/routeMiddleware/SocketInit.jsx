@@ -1,14 +1,12 @@
 import { useEffect } from "react";
-import useSocket from "../../zustand/socket.store";
+import { connectSocket } from "../../socket/socketController.js";
 
 const SocketInit = ({ user }) => {
-  const { socket, setSocket } = useSocket();
-
   useEffect(() => {
-    if (user && !socket) {
-      setSocket(user);
-    }
-  }, [user, socket, setSocket]);
+    if (!user) return;
+
+    connectSocket(user);
+  }, [user]);
 
   return null;
 };

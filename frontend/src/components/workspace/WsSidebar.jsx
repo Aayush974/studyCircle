@@ -58,7 +58,7 @@ const WsSidebar = () => {
   }, [workspaceId, workspace]);
 
   return (
-    <aside className="w-3/10 h-screen border-r border-base-300 flex flex-col">
+    <aside className="h-screen max-h-screen border-r border-base-300 flex flex-col">
       {/* Workspace header */}
       <div className="flex items-center gap-3 mb-6 p-4 bg-base-200 shadow-md">
         {workspace?.logo ? (

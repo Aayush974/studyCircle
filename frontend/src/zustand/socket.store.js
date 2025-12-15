@@ -1,6 +1,5 @@
 import { create } from "zustand";
 import io from "socket.io-client";
-import userSocket from "../socket/user.socket.js";
 
 const useSocket = create((set) => ({
   socket: null,
@@ -8,7 +7,7 @@ const useSocket = create((set) => ({
     const socketUrl = import.meta.env.VITE_SOCKET_URL;
     if (!user) return;
     try {
-      const socketInstance =  io(socketUrl, {
+      const socketInstance = io(socketUrl, {
         auth: {
           user,
         },
@@ -17,7 +16,6 @@ const useSocket = create((set) => ({
         reconnectionAttempts: 3,
         timeout: 10000,
       });
-      userSocket(socketInstance)
       socketInstance.on("connect_error", (err) => {
         console.error("Socket connection failed:", err.message);
         socketInstance.disconnect();

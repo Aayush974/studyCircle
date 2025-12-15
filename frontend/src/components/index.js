@@ -12,6 +12,7 @@ import UserProfile from "./profile/UserProfile";
 import UserWorkspaces from "./profile/UserWorkspaces";
 import ProtectedRoute from "./routeMiddleware/ProtectedRoute";
 import WsSidebar from "./workspace/WsSidebar";
+import WsGeneral from "./workspace/WsGeneral";
 export {
   FlexContainer,
   Heading,
@@ -27,4 +28,5 @@ export {
   UserWorkspaces,
   ProtectedRoute,
   WsSidebar,
+  WsGeneral,
 };
