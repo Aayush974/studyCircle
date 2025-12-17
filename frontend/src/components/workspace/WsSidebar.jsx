@@ -9,7 +9,8 @@ const WsSidebar = () => {
   const { workspaceId } = useParams();
   const workspace = useWorkspace((state) => state.workspaceByIds[workspaceId]);
   const studyRooms = useWorkspace((state) => state.studyRooms);
-  const { setStudyRooms } = useWorkspace();
+  const setStudyRooms = useWorkspace((state) => state.setStudyRooms);
+  const setSelectedRoom = useWorkspace((state) => state.setSelectedRoom);
   const { user } = useUser();
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
@@ -72,7 +73,13 @@ const WsSidebar = () => {
             🏠
           </div>
         )}
-        <h2 className="text-xl md:text-3xl lg:text-3xl xl:text-5xl font-bold">
+        <h2
+          onClick={() => {
+            sessionStorage.setItem("selectedRoom", null);
+            setSelectedRoom(null);
+          }}
+          className="text-xl md:text-3xl lg:text-3xl xl:text-5xl font-bold cursor-pointer"
+        >
           {workspace ? workspace.name : "..."}
         </h2>
       </div>
@@ -103,6 +110,9 @@ const WsSidebar = () => {
         {!loading &&
           studyRooms.map((room) => (
             <li
+              onClick={() => {
+                setSelectedRoom(room);
+              }}
               key={room._id}
               className="px-3 py-2 rounded-md hover:bg-base-200 cursor-pointer"
             >

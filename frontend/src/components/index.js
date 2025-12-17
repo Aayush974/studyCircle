@@ -13,6 +13,8 @@ import UserWorkspaces from "./profile/UserWorkspaces";
 import ProtectedRoute from "./routeMiddleware/ProtectedRoute";
 import WsSidebar from "./workspace/WsSidebar";
 import WsGeneral from "./workspace/WsGeneral";
+import Room from "./workspace/Room";
+import MainWindow from "./workspace/MainWindow";
 export {
   FlexContainer,
   Heading,
@@ -29,4 +31,6 @@ export {
   ProtectedRoute,
   WsSidebar,
   WsGeneral,
+  Room,
+  MainWindow,
 };

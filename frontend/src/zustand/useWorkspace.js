@@ -22,6 +22,18 @@ const useWorkspace = create((set, get) => ({
       return { studyRooms: rooms };
     });
   },
+  selectedRoom: null,
+  setSelectedRoom: (room) => {
+    set((state) => {
+      if (!room) {
+        return { selectedRoom: null };
+      }
+      if (state.selectedRoom && state.selectedRoom._id === room._id)
+        return state; // same room selection
+      sessionStorage.setItem("selectedRoom", JSON.stringify(room));
+      return { selectedRoom: room };
+    });
+  },
   setworkspaceByIds: (data) => {
     if (!data) return;
     const exists = get().workspaceByIds[data._id]; // if ws data already exists in the store
