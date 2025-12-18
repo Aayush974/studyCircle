@@ -18,7 +18,7 @@ const messageSchema = new mongoose.Schema(
       required: true,
       trim: true,
       lowercase: true,
-      enum: ["workspace", "studyRoom", "user"],
+      enum: ["workspace", "studyroom", "user"],
     },
     attachments: [
       {

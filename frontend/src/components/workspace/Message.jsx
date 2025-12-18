@@ -3,10 +3,8 @@ const Message = ({ message, currentUserId }) => {
 
   return (
     <div className={`chat ${isOwn ? "chat-end" : "chat-start"}`}>
-      <div className="chat-header text-xs opacity-70">{message.senderName}</div>
-
       <div className={`chat-bubble ${isOwn ? "chat-bubble-primary" : ""}`}>
-        {message.text}
+        {message.content}
       </div>
 
       <div className="chat-footer text-[10px] opacity-50">

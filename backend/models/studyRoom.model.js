@@ -13,11 +13,11 @@ const studyRoomSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    workspaceId:{
+    workspaceId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Workspace",
-      required: true
-    }
+      required: true,
+    },
   },
   {
     timestamps: true,

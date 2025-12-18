@@ -15,6 +15,32 @@ const upload = multer({
   limits: {
     fileSize: 10 * 1024 * 1024, // 10MB (biggest case, pdf)
   },
+  fileFilter: (req, file, cb) => {
+    // images: allow only image mime types
+    if (file.fieldname === "images") {
+      if (file.mimetype.startsWith("image/")) {
+        return cb(null, true);
+      } else {
+        return cb(
+          new multer.MulterError("LIMIT_UNEXPECTED_FILE", file.fieldname)
+        );
+      }
+    }
+
+    // pdf: allow only application/pdf
+    if (file.fieldname === "pdf") {
+      if (file.mimetype === "application/pdf") {
+        return cb(null, true);
+      } else {
+        return cb(
+          new multer.MulterError("LIMIT_UNEXPECTED_FILE", file.fieldname)
+        );
+      }
+    }
+
+    // unexpected field name
+    return cb(new multer.MulterError("LIMIT_UNEXPECTED_FILE", file.fieldname));
+  },
 });
 
 const attachmentMiddleware = upload.fields([

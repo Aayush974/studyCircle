@@ -1,8 +1,23 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Message from "./Message";
+import MessageInput from "./MessageInput";
+import { getMessage } from "../../api/message.api";
 
 const Room = ({ room, currentUserId }) => {
   const [messages, setMessages] = useState([]);
+
+  useEffect(() => {
+    (async () => {
+      const res = await getMessage({
+        targetId: room._id,
+        targetType: "studyRoom",
+      });
+      if (!res.data) {
+        return;
+      }
+      setMessages(res.data?.messages);
+    })();
+  }, []);
   return (
     <div className="flex flex-col h-full min-h-0">
       {/* Header */}
@@ -28,16 +43,7 @@ const Room = ({ room, currentUserId }) => {
       </div>
 
       {/* Input */}
-      <div className="p-3 border-t border-base-300">
-        <div className="join w-full">
-          <input
-            type="text"
-            placeholder="Type a message"
-            className="input input-bordered join-item w-full"
-          />
-          <button className="btn btn-primary join-item">Send</button>
-        </div>
-      </div>
+      <MessageInput targetId={room._id} targetType={"studyRoom"} />
     </div>
   );
 };
