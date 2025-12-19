@@ -1,12 +1,12 @@
 import { Membership } from "../models/membership.model.js";
-import { StudyRoom } from "../models/studyRoom.model.js";
+import { Room } from "../models/room.model.js";
 import { User } from "../models/user.model.js";
 import { Workspace } from "../models/workspace.model.js";
 import { ApiError } from "./ApiError.js";
 
 const modelMap = {
   workspace: Workspace,
-  studyRoom: StudyRoom
+  room: Room
 };
 
 const createMembership = async function (userId, targetId, targetType, role) {
@@ -33,7 +33,7 @@ const createMembership = async function (userId, targetId, targetType, role) {
         `the user is already joined to the ${targetType}`
       );
     }
-    console.log(targetType)
+
     const membership = await Membership.create({
       userId,
       targetId,

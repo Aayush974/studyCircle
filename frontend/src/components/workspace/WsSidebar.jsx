@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import useWorkspace from "../../zustand/useWorkspace";
-import { createStudyRoom, getAllRooms } from "../../api/studyRoom.api";
+import { createRoom, getAllRooms } from "../../api/room.api";
 import useUser from "../../zustand/user.store";
 import { ShowToast } from "../../utils/ShowToast";
 import { useEffect, useRef, useState } from "react";
@@ -8,19 +8,19 @@ import { useEffect, useRef, useState } from "react";
 const WsSidebar = () => {
   const { workspaceId } = useParams();
   const workspace = useWorkspace((state) => state.workspaceByIds[workspaceId]);
-  const studyRooms = useWorkspace((state) => state.studyRooms);
-  const setStudyRooms = useWorkspace((state) => state.setStudyRooms);
+  const rooms = useWorkspace((state) => state.rooms);
+  const setRooms = useWorkspace((state) => state.setRooms);
   const setSelectedRoom = useWorkspace((state) => state.setSelectedRoom);
   const { user } = useUser();
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const modalRef = useRef();
 
-  const createRoom = async (e) => {
+  const addRoom = async (e) => {
     e.preventDefault();
     if (!user || !workspaceId || !name.trim()) return;
 
-    const res = await createStudyRoom({
+    const res = await createRoom({
       userId: user._id,
       workspaceId,
       name: name.trim(),
@@ -32,8 +32,8 @@ const WsSidebar = () => {
     }
 
     ShowToast(res.data?.message, { type: "success" });
-    setStudyRooms(
-      studyRooms ? [...studyRooms, res.data?.studyRoom] : [res.data?.studyRoom]
+    setRooms(
+      rooms ? [...rooms, res.data?.room] : [res.data?.room]
     );
     setName("");
     modalRef.current?.close();
@@ -47,9 +47,9 @@ const WsSidebar = () => {
       const res = await getAllRooms(workspaceId);
 
       if (res.status >= 400 && res.error) {
-        setStudyRooms([]);
+        setRooms([]);
       } else {
-        setStudyRooms(res.data?.studyRooms || []);
+        setRooms(res.data?.rooms || []);
       }
 
       setLoading(false);
@@ -87,7 +87,7 @@ const WsSidebar = () => {
       {/* Rooms header */}
       <div className="p-4 flex items-center justify-between mb-2">
         <span className="text-md md:text-lg lg:text-xl xl:text-2xl font-semibold text-base-content/70">
-          Study Rooms
+           Rooms
         </span>
         <button
           className="btn p-2 btn-primary text-md md:text-lg lg:text-xl xl:text-2xl font-semibold text-base-content/70"
@@ -103,12 +103,12 @@ const WsSidebar = () => {
           <li className="text-sm text-base-content/60">Loading rooms…</li>
         )}
 
-        {!loading && studyRooms.length === 0 && (
+        {!loading && rooms.length === 0 && (
           <li className="text-sm text-base-content/60">No rooms yet</li>
         )}
 
         {!loading &&
-          studyRooms.map((room) => (
+          rooms.map((room) => (
             <li
               onClick={() => {
                 setSelectedRoom(room);
@@ -124,7 +124,7 @@ const WsSidebar = () => {
       {/* Create room modal */}
       <dialog ref={modalRef} className="modal">
         <div className="modal-box">
-          <form onSubmit={createRoom}>
+          <form onSubmit={addRoom}>
             <button
               type="button"
               onClick={() => modalRef.current?.close()}

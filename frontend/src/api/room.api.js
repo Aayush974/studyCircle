@@ -1,8 +1,8 @@
 import axios from "axios";
 
-const createStudyRoom = async function (data) {
+const createRoom = async function (data) {
   try {
-    const res = await axios.post("/api/studyRoom/create-studyRoom", data, {
+    const res = await axios.post("/api/room/create-room", data, {
       headers: { "Content-Type": "application/json" },
       withCredentials: true,
     });
@@ -22,7 +22,7 @@ const createStudyRoom = async function (data) {
 
 const getAllRooms = async function (workspaceId) {
   try {
-    const res = await axios.get(`/api/studyRoom/get-allRooms/${workspaceId}`, {
+    const res = await axios.get(`/api/room/get-allRooms/${workspaceId}`, {
       headers: { "Content-Type": "application/json" },
       withCredentials: true,
     });
@@ -40,4 +40,4 @@ const getAllRooms = async function (workspaceId) {
   }
 };
 
-export { createStudyRoom, getAllRooms };
+export { createRoom, getAllRooms };

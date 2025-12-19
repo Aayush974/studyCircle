@@ -10,7 +10,7 @@ const Room = ({ room, currentUserId }) => {
     (async () => {
       const res = await getMessage({
         targetId: room._id,
-        targetType: "studyRoom",
+        targetType: "room",
       });
       if (!res.data) {
         return;
@@ -43,7 +43,7 @@ const Room = ({ room, currentUserId }) => {
       </div>
 
       {/* Input */}
-      <MessageInput targetId={room._id} targetType={"studyRoom"} />
+      <MessageInput targetId={room._id} targetType={"room"} />
     </div>
   );
 };

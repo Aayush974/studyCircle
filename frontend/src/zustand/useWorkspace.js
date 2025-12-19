@@ -5,12 +5,12 @@ const useWorkspace = create((set, get) => ({
     // this struccture is used for potential caching features to be implemented later on down the line
     // wsId: {wsDetails}
   },
-  studyRooms: [], // holds the list of study rooms of the current workspace
-  setStudyRooms: (rooms) => {
+  rooms: [], // holds the list of study rooms of the current workspace
+  setRooms: (rooms) => {
     if (!Array.isArray(rooms)) return;
 
     set((state) => {
-      const prev = state.studyRooms;
+      const prev = state.rooms;
       //
       if (
         prev.length === rooms.length &&
@@ -19,7 +19,7 @@ const useWorkspace = create((set, get) => ({
         return state;
       }
 
-      return { studyRooms: rooms };
+      return { rooms: rooms };
     });
   },
   selectedRoom: null,

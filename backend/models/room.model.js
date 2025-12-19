@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const studyRoomSchema = new mongoose.Schema(
+const roomSchema = new mongoose.Schema(
   {
     name: {
       type: String,
@@ -24,6 +24,6 @@ const studyRoomSchema = new mongoose.Schema(
   }
 );
 
-const StudyRoom = mongoose.model("StudyRoom", studyRoomSchema);
+const Room = mongoose.model("Room", roomSchema);
 
-export { StudyRoom };
+export { Room };

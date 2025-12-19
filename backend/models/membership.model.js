@@ -16,7 +16,7 @@ const membershipSchema = new mongoose.Schema(
       required: true,
       trim: true,
       lowercase: true,
-      enum: ["workspace", "studyroom"],
+      enum: ["workspace", "room"],
     },
     role: {
       type: String,

@@ -1,11 +1,11 @@
 import mongoose from "mongoose";
 import { Membership } from "../models/membership.model.js";
-import { StudyRoom } from "../models/studyRoom.model.js";
+import { Room } from "../models/room.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import { createMembership } from "../utils/membership.js";
 
-const createStudyRoom = asyncHandler(async (req, res) => {
+const createRoom = asyncHandler(async (req, res) => {
   const { userId, workspaceId, name } = req.body;
 
   if (name.trim() === "") {
@@ -29,35 +29,35 @@ const createStudyRoom = asyncHandler(async (req, res) => {
     throw new ApiError(401, "action requires an admin or owner");
   }
 
-  const studyRoom = await StudyRoom.create({
+  const room = await Room.create({
     name,
     createdBy: userObjectId,
     workspaceId: workspaceObjectId,
   });
 
-  if (!studyRoom) {
-    throw new ApiError(500, "something went wrong while creating studyRoom");
+  if (!room) {
+    throw new ApiError(500, "something went wrong while creating room");
   }
 
   try {
-    await createMembership(userId, studyRoom._id, "studyRoom", "owner");
+    await createMembership(userId, room._id, "room", "owner");
   } catch (error) {
-    await StudyRoom.findByIdAndDelete(studyRoom._id);
+    await Room.findByIdAndDelete(room._id);
     throw error;
   }
 
   return res.status(201).json({
     status: 200,
     success: true,
-    message: "new studyRoom created successfully",
-    studyRoom,
+    message: "new room created successfully",
+    room,
   });
 });
 
 const getAllRooms = asyncHandler(async (req, res) => {
   const { workspaceId } = req.params;
   const workspaceObjectId = new mongoose.Types.ObjectId(workspaceId);
-  const rooms = await StudyRoom.find({
+  const rooms = await Room.find({
     workspaceId: workspaceObjectId,
   });
   if (!rooms) {
@@ -67,8 +67,8 @@ const getAllRooms = asyncHandler(async (req, res) => {
     status: 200,
     success: true,
     message: "fetched rooms successfully",
-    studyRooms: rooms,
+    rooms: rooms,
   });
 });
 
-export { createStudyRoom, getAllRooms };
+export { createRoom, getAllRooms };

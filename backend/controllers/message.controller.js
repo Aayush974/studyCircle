@@ -21,10 +21,10 @@ const createMessage = asyncHandler(async (req, res) => {
     }
 
     // check if target type is valid
-    if (!["workspace", "studyRoom", "user"].includes(targetType)) {
+    if (!["workspace", "room", "user"].includes(targetType)) {
       throw new ApiError(
         400,
-        "invalid targetType, can only be 'workspace' 'user' and 'studyRoom'"
+        "invalid targetType, can only be 'workspace' 'user' and 'room'"
       );
     }
 
@@ -149,10 +149,10 @@ const getMessage = asyncHandler(async (req, res) => {
     throw new ApiError(400, "targetId and targetType are required");
   }
 
-  if (!["workspace", "studyRoom", "user"].includes(targetType)) {
+  if (!["workspace", "room", "user"].includes(targetType)) {
     throw new ApiError(
       400,
-      "invalid targetType in query. can only be 'workspace' 'user' and 'studyRoom'"
+      "invalid targetType in query. can only be 'workspace' 'user' and 'room'"
     );
   }
 

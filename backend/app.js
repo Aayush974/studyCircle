@@ -4,7 +4,7 @@ import cookieParser from "cookie-parser";
 import { userRouter } from "./routes/user.routes.js";
 import workspaceRouter from "./routes/workspace.routes.js";
 import messageRouter from "./routes/message.route.js";
-import studyRoomRouter from "./routes/studyRoom.route.js";
+import roomRouter from "./routes/room.routes.js";
 
 const whiteList = [process.env.LOCAL_ENV_URL_CORS];
 
@@ -27,6 +27,6 @@ app.use(json());
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/workspace", workspaceRouter);
 app.use("/api/v1/messages", messageRouter);
-app.use("/api/v1/studyRoom", studyRoomRouter);
+app.use("/api/v1/room", roomRouter);
 
 export default app;
