@@ -39,13 +39,6 @@ const createRoom = asyncHandler(async (req, res) => {
     throw new ApiError(500, "something went wrong while creating room");
   }
 
-  try {
-    await createMembership(userId, room._id, "room", "owner");
-  } catch (error) {
-    await Room.findByIdAndDelete(room._id);
-    throw error;
-  }
-
   return res.status(201).json({
     status: 200,
     success: true,

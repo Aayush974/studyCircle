@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { createMessage } from "../../api/message.api";
-
+import { ShowToast } from "../../utils/ShowToast";
 const MessageInput = ({ targetId, targetType }) => {
   const { register, handleSubmit, reset } = useForm();
   const [attachments, setAttachments] = useState([]);
+  const [disableSending, setDisableSending] = useState(false);
 
   const addAttachment = (e) => {
     const files = Array.from(e.target.files);
@@ -16,22 +17,53 @@ const MessageInput = ({ targetId, targetType }) => {
   };
 
   const onSubmit = async (data) => {
+    setDisableSending(true);
     const fd = new FormData();
+    let pdfCount = 0;
+    let imageCount = 0;
     fd.append("content", data.content);
     fd.append("targetId", targetId);
     fd.append("targetType", targetType);
 
     for (const attachment of attachments) {
       if (attachment.type === "application/pdf") {
+        pdfCount++;
         fd.append("pdf", attachment);
       }
       if (attachment.type.includes("image/")) {
+        imageCount++;
         fd.append("images", attachment);
       }
     }
 
-    await createMessage(fd);
+    if (pdfCount > 1 || imageCount > 2) {
+      ShowToast("only 1 pdf and 2 images allowed", {
+        type: "error",
+      });
+      setDisableSending(false);
+      return;
+    }
 
+    if (pdfCount == 0 && imageCount == 0 && !data.content.trim()) {
+      ShowToast("empty message", {
+        type: "error",
+      });
+      setDisableSending(false);
+      return;
+    }
+
+    const res = await createMessage(fd);
+
+    if (res.status > 400 && res.error) {
+      // if error occured
+      ShowToast(res.error?.message, {
+        type: "error",
+      });
+      setDisableSending(false);
+      return;
+    }
+
+    setDisableSending(false);
     reset();
     setAttachments([]);
   };
@@ -90,7 +122,11 @@ const MessageInput = ({ targetId, targetType }) => {
           )}
         </div>
 
-        <button type="submit" className="btn btn-primary">
+        <button
+          type="submit"
+          disabled={disableSending}
+          className={`btn btn-primary`}
+        >
           Send
         </button>
       </div>

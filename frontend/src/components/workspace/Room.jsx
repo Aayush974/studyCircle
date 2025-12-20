@@ -17,13 +17,16 @@ const Room = ({ room, currentUserId }) => {
       }
       setMessages(res.data?.messages);
     })();
-  }, []);
+  }, [room]);
+
   return (
     <div className="flex flex-col h-full min-h-0">
       {/* Header */}
       <div className="navbar bg-base-200 px-4">
         <div className="flex-1">
-          <span className="font-semibold">{room?.name || "Chat Room"}</span>
+          <span className="text-md md:text-lg lg:text-xl xl:text-2xl font-semibold text-base-content/70">
+            {room?.name || "Chat Room"}
+          </span>
         </div>
       </div>
 

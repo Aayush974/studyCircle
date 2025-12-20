@@ -28,15 +28,6 @@ const createMessage = asyncHandler(async (req, res) => {
       );
     }
 
-    try {
-      await getMembership(targetId, req.user._id.toString());
-    } catch (error) {
-      throw new ApiError(
-        403,
-        "forbidden to create these messages. No membership found"
-      );
-    }
-
     // if no message content is there
     if (content.trim() == "" && !pdf && images.length == 0) {
       throw new ApiError(400, "no content provided in message");
@@ -49,7 +40,11 @@ const createMessage = asyncHandler(async (req, res) => {
     let uploadedPdfData;
     if (localPdfPath) {
       // upload pdf to cloudinary
-      uploadedPdfData = await uploadOnCloudinary(localPdfPath, "attachments");
+      uploadedPdfData = await uploadOnCloudinary(
+        localPdfPath,
+        "attachments",
+        "raw"
+      );
 
       // push the data to the attachments array
       attachments.push({
@@ -153,15 +148,6 @@ const getMessage = asyncHandler(async (req, res) => {
     throw new ApiError(
       400,
       "invalid targetType in query. can only be 'workspace' 'user' and 'room'"
-    );
-  }
-
-  try {
-    await getMembership(targetId, req.user._id.toString());
-  } catch (error) {
-    throw new ApiError(
-      403,
-      "forbidden to access these messages. No membership found"
     );
   }
 
