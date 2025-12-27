@@ -4,13 +4,14 @@ import useUser from "../zustand/user.store";
 import useWorkspace from "../zustand/useWorkspace";
 import { useParams } from "react-router-dom";
 import { fetchWorkspace } from "../api/workspace.api";
-import { enterWorkspace } from "../socket/socketController";
+import { enterWorkspace, leaveWorkspace } from "../socket/socketController";
 
 const Workspace = () => {
   const { user } = useUser();
   const workspaceByIds = useWorkspace((state) => state.workspaceByIds);
   const setworkspaceByIds = useWorkspace((state) => state.setworkspaceByIds);
   const { workspaceId } = useParams();
+  const  setToInitial  = useWorkspace((state) => state.setToInitial);
 
   // a reconnect option is given incase the socket connection fails due to some technical issues on the SocketInit component
   // const reConnect = () => {
@@ -29,6 +30,12 @@ const Workspace = () => {
 
   useEffect(() => {
     enterWorkspace(workspaceId, user);
+
+    return () => {
+      setToInitial();
+      sessionStorage.setItem("selectedRoom", null);
+      leaveWorkspace(workspaceId, user);
+    };
   }, [workspaceId, user]);
   // this is causing unecessary ui changes so commenting it out for now will figure something later
   // if (!socket) {

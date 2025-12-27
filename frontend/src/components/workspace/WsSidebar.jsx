@@ -32,9 +32,7 @@ const WsSidebar = () => {
     }
 
     ShowToast(res.data?.message, { type: "success" });
-    setRooms(
-      rooms ? [...rooms, res.data?.room] : [res.data?.room]
-    );
+    setRooms(rooms ? [...rooms, res.data?.room] : [res.data?.room]);
     setName("");
     modalRef.current?.close();
   };
@@ -87,7 +85,7 @@ const WsSidebar = () => {
       {/* Rooms header */}
       <div className="p-4 flex items-center justify-between mb-2">
         <span className="text-md md:text-lg lg:text-xl xl:text-2xl font-semibold text-base-content/70">
-           Rooms
+          Rooms
         </span>
         <button
           className="btn p-2 btn-primary text-md md:text-lg lg:text-xl xl:text-2xl font-semibold text-base-content/70"

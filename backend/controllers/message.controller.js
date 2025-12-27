@@ -6,6 +6,7 @@ import uploadOnCloudinary, {
   deleteFromCloudinary,
 } from "../utils/uploadOnCloudinary.js";
 import fs from "fs";
+import eventBus from "../utils/eventBus.js";
 
 const createMessage = asyncHandler(async (req, res) => {
   try {
@@ -105,6 +106,11 @@ const createMessage = asyncHandler(async (req, res) => {
       targetId,
       targetType,
       attachments,
+    });
+
+    eventBus.emit("chat:create-msg", {
+      message: newMessage.toObject(),
+      user: req.user,
     });
 
     if (!newMessage) {

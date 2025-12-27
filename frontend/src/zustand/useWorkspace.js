@@ -45,6 +45,13 @@ const useWorkspace = create((set, get) => ({
       },
     }));
   },
+  setToInitial: () => {
+    set((state) => ({
+      workspaceByIds: {},
+      rooms: [],
+      selectedRoom: null,
+    }));
+  },
 }));
 
 export default useWorkspace;

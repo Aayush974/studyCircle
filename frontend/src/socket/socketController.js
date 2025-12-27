@@ -1,6 +1,9 @@
 import useSocket from "../zustand/socket.store";
+import useWorkspace from "../zustand/useWorkspace";
 
 let currentWorkspace = null;
+let currentRoom = null;
+const { setToInitial, setSelectedRoom } = useWorkspace.getState();
 
 export function connectSocket(user) {
   if (!user) return;
@@ -20,11 +23,52 @@ export function enterWorkspace(workspaceId, user) {
   if (currentWorkspace === workspaceId) return;
 
   if (currentWorkspace) {
-    socket.emit("leaveWs", { workspaceId: currentWorkspace });
+    leaveWorkspace(currentWorkspace, user);
   }
 
   currentWorkspace = workspaceId;
   socket.emit("enterWs", { workspaceId, user });
+}
+
+export function leaveWorkspace(workspaceId, user) {
+  if (!workspaceId || !user) return;
+
+  const { socket } = useSocket.getState();
+  if (!socket) return;
+
+  if (!(currentWorkspace === workspaceId)) return;
+
+  socket.emit("leaveWs", { workspaceId: currentWorkspace, user });
+  currentWorkspace = null;
+  currentRoom = null;
+}
+
+export function enterRoom(roomId, user) {
+  if (!roomId || !user) return;
+
+  const { socket } = useSocket.getState();
+  if (!socket) return;
+
+  if (currentRoom === roomId) return;
+
+  if (currentRoom) {
+    leaveRoom(currentRoom, user);
+  }
+
+  currentRoom = roomId;
+  socket.emit("enterRoom", { roomId, user });
+}
+
+export function leaveRoom(roomId, user) {
+  if (!roomId || !user) return;
+
+  const { socket } = useSocket.getState();
+  if (!socket) return;
+
+  if (!(currentRoom === roomId)) return;
+
+  socket.emit("leaveRoom", { roomId: currentRoom, user });
+  currentRoom = null;
 }
 
 export function disconnectSocket() {

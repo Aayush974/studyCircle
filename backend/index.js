@@ -5,17 +5,21 @@ import { createServer } from "node:http";
 import { Server } from "socket.io";
 import { userSocket } from "./socket/user.socket.js";
 import verifySocket from "./middlewares/socketAuth.middleware.js";
+import { messageSocket } from "./socket/message.socket.js";
+import { roomSocket } from "./socket/room.socket.js";
 const server = createServer(app); // creating a node.js http server using express app
-const io = new Server(server,{
-  cors:{
-    origin:process.env.LOCAL_ENV_URL_CORS,
-    credentials:true,
-  }
+const io = new Server(server, {
+  cors: {
+    origin: process.env.LOCAL_ENV_URL_CORS,
+    credentials: true,
+  },
 }); // creating a new socket.io server instance that share the same underlying HTTP server as express app
 
-io.use(verifySocket) // auth middleware for socket connection
+io.use(verifySocket); // auth middleware for socket connection
 
-userSocket(io)
+userSocket(io);
+roomSocket(io);
+messageSocket(io);
 
 connectDb()
   .then(() => {

@@ -3,6 +3,51 @@ const workspaceMap = new Map();
 // reconnection time window of 3s
 const reconnectionTime = 3000;
 
+function handleLeave(io, socket, reason = "unknown") {
+  const { userDetails, workspaceId } = socket;
+
+  if (!workspaceId || !userDetails?._id) return;
+
+  const ws = workspaceMap.get(workspaceId);
+  if (!ws) return;
+
+  const entry = ws.get(userDetails._id);
+  if (!entry) return;
+
+  // Remove this socket
+  entry.sockets.delete(socket.id);
+
+  // If user still has active sockets, they are still present
+  if (entry.sockets.size > 0) return;
+
+  // Avoid scheduling multiple leave timers
+  if (entry.leaveTimer) return;
+
+  entry.leaveTimer = setTimeout(() => {
+    // User reconnected meanwhile
+    if (entry.sockets.size > 0) {
+      entry.leaveTimer = null;
+      return;
+    }
+
+    entry.isPresent = false;
+    ws.delete(userDetails._id);
+    socket.leave(workspaceId);
+
+    io.to(workspaceId).emit("notification", {
+      type: "leave",
+      user: entry.user,
+      reason,
+      message: `${entry.user.username} exited the workspace`,
+    });
+
+    // Cleanup empty workspace
+    if (ws.size === 0) {
+      workspaceMap.delete(workspaceId);
+    }
+  }, reconnectionTime);
+}
+
 export const userSocket = function (io) {
   io.on("connection", async function (socket) {
     socket.on("enterWs", ({ workspaceId, user }) => {
@@ -46,42 +91,12 @@ export const userSocket = function (io) {
       }
     });
 
+    socket.on("leaveWs", () => {
+      handleLeave(io, socket, "leave");
+    });
+
     socket.on("disconnect", () => {
-      const { userDetails, workspaceId } = socket;
-
-      if (!workspaceId || !userDetails._id) return;
-      const ws = workspaceMap.get(workspaceId);
-      if (!ws) return;
-
-      const entry = ws.get(userDetails._id);
-      if (!entry) return;
-
-      entry.sockets.delete(socket.id); // delete the socket which disconnected from the set of active sockets
-
-      if (entry.sockets.size === 0) {
-        // if socket count has reached 0 then it has no active sockets left so schedule cleanup
-        // in the ws model add the leave time fxn
-
-        entry.leaveTimer = setTimeout(() => {
-          // if reconnection has been made then return
-          if (entry.sockets.size > 0) return;
-
-          // update the entries presence to false i.e the user has exited the workspace
-          entry.isPresent = false;
-          ws.delete(userDetails._id);
-
-          io.to(workspaceId).emit("notification", {
-            type: "leave",
-            user: entry.user,
-            message: `${entry.user.username} exited the workspace`,
-          });
-
-          // if no users are present in the workspace delete it from the modal
-          if (ws.size === 0) {
-            workspaceMap.delete(workspaceId);
-          }
-        }, reconnectionTime);
-      }
+      handleLeave(io, socket, "disconnect");
     });
   });
 };

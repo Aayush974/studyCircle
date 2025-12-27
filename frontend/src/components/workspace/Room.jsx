@@ -2,11 +2,17 @@ import { useEffect, useState } from "react";
 import Message from "./Message";
 import MessageInput from "./MessageInput";
 import { getMessage } from "../../api/message.api";
+import useSocket from "../../zustand/socket.store";
+import { enterRoom, leaveRoom } from "../../socket/socketController";
+import useUser from "../../zustand/user.store";
 
 const Room = ({ room, currentUserId }) => {
   const [messages, setMessages] = useState([]);
+  const socket = useSocket((state) => state.socket);
+  const user = useUser((state) => state.user);
 
   useEffect(() => {
+    if (!socket || !user) return;
     (async () => {
       const res = await getMessage({
         targetId: room._id,
@@ -16,8 +22,24 @@ const Room = ({ room, currentUserId }) => {
         return;
       }
       setMessages(res.data?.messages);
+      enterRoom(room._id, user);
     })();
-  }, [room]);
+
+    return () => {
+      leaveRoom(room._id, user);
+    };
+  }, [room, user]);
+
+  useEffect(() => {
+    if (!socket || !user) return;
+    const handler = ({ message }) => {
+      setMessages((prev) => [...prev, message]);
+    };
+    socket.on("chat:send-msg", handler);
+    return () => {
+      socket.off("chat:send-msg", handler);
+    };
+  }, [socket, user]);
 
   return (
     <div className="flex flex-col h-full min-h-0">
