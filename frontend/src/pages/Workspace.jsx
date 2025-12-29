@@ -11,7 +11,7 @@ const Workspace = () => {
   const workspaceByIds = useWorkspace((state) => state.workspaceByIds);
   const setworkspaceByIds = useWorkspace((state) => state.setworkspaceByIds);
   const { workspaceId } = useParams();
-  const  setToInitial  = useWorkspace((state) => state.setToInitial);
+  const setToInitial = useWorkspace((state) => state.setToInitial);
 
   // a reconnect option is given incase the socket connection fails due to some technical issues on the SocketInit component
   // const reConnect = () => {
@@ -32,8 +32,6 @@ const Workspace = () => {
     enterWorkspace(workspaceId, user);
 
     return () => {
-      setToInitial();
-      sessionStorage.setItem("selectedRoom", null);
       leaveWorkspace(workspaceId, user);
     };
   }, [workspaceId, user]);

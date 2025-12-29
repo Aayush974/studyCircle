@@ -100,9 +100,15 @@ const createMessage = asyncHandler(async (req, res) => {
         });
     }
 
+    const sender = {
+      _id: req.user._id,
+      username: req.user.username,
+      avatar: req.user.avatar,
+    };
+
     const newMessage = await Message.create({
       content,
-      senderId: req.user._id,
+      sender,
       targetId,
       targetType,
       attachments,

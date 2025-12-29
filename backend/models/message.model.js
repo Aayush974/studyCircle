@@ -5,9 +5,18 @@ const messageSchema = new mongoose.Schema(
     content: {
       type: String,
     },
-    senderId: {
-      type: String,
-      required: true,
+    sender: {
+      _id: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+      },
+      username: {
+        type: String,
+        required: true,
+      },
+      avatar: {
+        type: String,
+      },
     },
     targetId: {
       type: String,
