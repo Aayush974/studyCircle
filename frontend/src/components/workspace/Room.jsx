@@ -8,21 +8,59 @@ import useUser from "../../zustand/user.store";
 
 const Room = ({ room, currentUserId }) => {
   const [messages, setMessages] = useState([]);
+  const [cursor, setCursor] = useState(null);
+  const [loadingMsg, setLoadingMsg] = useState(false);
   const socket = useSocket((state) => state.socket);
   const user = useUser((state) => state.user);
   const containerRef = useRef();
   const hasInitialScrolledRef = useRef(false);
 
+  const fetchMessages = async (limit, before) => {
+    const res = await getMessage({
+      targetId: room._id,
+      targetType: "room",
+      limit,
+      before,
+    });
+    return res;
+  };
+
+  const loadMoreMessages = async (limit, before) => {
+    // preserve scroll position when prepending messages
+    const el = containerRef.current;
+    const prevScrollHeight = el ? el.scrollHeight : 0;
+    const prevScrollTop = el ? el.scrollTop : 0;
+
+    const res = await fetchMessages(limit, before);
+    if (!res?.data) return;
+
+    setCursor(res.data?.nextCursor);
+    setMessages((prev) => [...res.data?.messages, ...prev]);
+
+    // Wait for the DOM to update, then adjust scrollTop so the visible content stays the same
+    if (el) {
+      // two rAFs to ensure layout has updated
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          const newScrollHeight = el.scrollHeight;
+          el.scrollTop = prevScrollTop + (newScrollHeight - prevScrollHeight);
+        });
+      });
+    }
+  };
+  
   // to control entering and exiting the socket room
   useEffect(() => {
     if (!socket || !user) return;
     (async () => {
-      const res = await getMessage({
-        targetId: room._id,
-        targetType: "room",
-      });
+      const res = await fetchMessages(5);
       if (!res.data) {
         return;
+      }
+      if (res.data?.hasNextBatch && res.data?.nextCursor) {
+        setCursor(res.data.nextCursor);
+      } else {
+        setCursor(null);
       }
       setMessages(res.data?.messages);
       enterRoom(room._id, user);
@@ -31,7 +69,7 @@ const Room = ({ room, currentUserId }) => {
     return () => {
       leaveRoom(room._id, user);
     };
-  }, [room, user]);
+  }, [room, user, socket]);
 
   // to listen to messages from socket
   useEffect(() => {
@@ -79,7 +117,26 @@ const Room = ({ room, currentUserId }) => {
       </div>
 
       {/* Messages */}
-      <div ref={containerRef} className="flex-1 overflow-y-auto p-4 space-y-2">
+      <div
+        ref={containerRef}
+        className="flex-1 relative overflow-y-auto p-4 space-y-2"
+      >
+        {cursor ? (
+          loadingMsg ? (
+            <span></span>
+          ) : (
+            <button
+              onClick={async () => {
+                setLoadingMsg(true);
+                await loadMoreMessages(5, cursor);
+                setLoadingMsg(false);
+              }}
+              className="btn absolute top-0 left-1/2"
+            >
+              load more
+            </button>
+          )
+        ) : null}
         {messages.length === 0 ? (
           <div className="text-center text-sm opacity-60">No messages yet</div>
         ) : (

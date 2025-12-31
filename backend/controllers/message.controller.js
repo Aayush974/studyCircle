@@ -175,7 +175,7 @@ const getMessage = asyncHandler(async (req, res) => {
     if (isNaN(date.getTime())) {
       throw new ApiError(400, "invalid before date");
     }
-    filter.createdAt = { $lt: date };
+    filter.createdAt = { $lt: date }; // TODO: implement a compound filter using createdAt and id so as to avoid the situation of 2 msgs sharing the same createdAt
   }
 
   let parseLimit = parseInt(limit, 10);
@@ -184,12 +184,18 @@ const getMessage = asyncHandler(async (req, res) => {
 
   const messages = await Message.find(filter)
     .sort({ createdAt: -1 })
-    .limit(safeLimit); // limit to 50 messages at a time
+    .limit(safeLimit + 1); // limit to 50 messages at a time
+
+  const hasNextBatch = messages.length > safeLimit;
+  const slicedMessages = messages.slice(0, safeLimit).reverse();
+  const nextCursor = hasNextBatch ? slicedMessages[0].createdAt : null;
 
   return res.status(200).json({
     status: 200,
     success: true,
-    messages: messages.reverse(), // for frontend oldest -> newest
+    messages: slicedMessages, // for frontend oldest -> newest
+    hasNextBatch,
+    nextCursor,
   });
 });
 

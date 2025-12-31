@@ -20,10 +20,10 @@ const createMessage = async function (data) {
   }
 };
 
-const getMessage = async function ({ targetId, targetType, before, limit }) {
+const getMessage = async function ({ targetId, targetType, limit, before }) {
   try {
     const res = await axios.get("/api/messages/get-message", {
-      params: { targetId, targetType },
+      params: { targetId, targetType, before, limit },
       headers: { "Content-Type": "application/json" },
       withCredentials: true,
     });
