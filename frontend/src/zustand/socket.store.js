@@ -13,13 +13,18 @@ const useSocket = create((set) => ({
         },
         withCredentials: true,
         ackTimeout: 5000,
+        reconnection: true,
         reconnectionAttempts: 3,
+        reconnectionDelay: 4,
         timeout: 10000,
       });
-      socketInstance.on("connect_error", (err) => {
-        console.error("Socket connection failed:", err.message);
-        socketInstance.disconnect();
-        set({ socket: null });
+      // socketInstance.on("connect_error", (err) => { 
+      //   console.error("Socket connection failed:", err.message);
+      //   socketInstance.disconnect(); // this breaks reconnection attempt
+      //   set({ socket: null });
+      // });
+      socketInstance.on("disconnect", (reason) => {
+        console.log("DISCONNECTED:", reason);
       });
       set({ socket: socketInstance });
     } catch (error) {

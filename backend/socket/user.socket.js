@@ -50,6 +50,7 @@ function handleLeave(io, socket, reason = "unknown") {
 
 export const userSocket = function (io) {
   io.on("connection", async function (socket) {
+    socket.join(socket.user._id.toString()); // join a socket to a individual userId room this is to be able to broadcast private events to a single socket like msg retries
     socket.on("enterWs", ({ workspaceId, user }) => {
       socket.workspaceId = workspaceId; // attach workspace id to the server socket instance for disconnect handling purpose
       socket.userDetails = user; // since a user object is already attached during the socketAuth middleware

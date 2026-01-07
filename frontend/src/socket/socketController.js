@@ -43,6 +43,17 @@ export function leaveWorkspace(workspaceId, user) {
   currentRoom = null;
 }
 
+export function sendAck(userId, msgId) {
+  if (!userId || !msgId) return;
+  const { socket } = useSocket.getState();
+  if (!socket) return;
+  console.log("[ACK SENT]", msgId);
+  socket.emit("chat:ack-msg", {
+    userId,
+    msgId,
+  });
+}
+
 export function enterRoom(roomId, user) {
   if (!roomId || !user) return;
 

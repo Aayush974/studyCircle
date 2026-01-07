@@ -1,5 +1,5 @@
 // using map to keep track of active room and its users
-const roomMap = new Map();
+const roomMap = new Map(); // {roomId: userId:{user,sockets,leaveTimer...}}
 
 const handleLeave = (socket, reason = "disconnect") => {
   const { userDetails, roomId } = socket;
@@ -58,4 +58,8 @@ export const roomSocket = function (io) {
       handleLeave(socket, "leave");
     });
   });
+};
+
+export const getRoomMap = () => {
+  return roomMap;
 };

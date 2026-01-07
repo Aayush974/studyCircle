@@ -3,7 +3,7 @@ import Message from "./Message";
 import MessageInput from "./MessageInput";
 import { getMessage } from "../../api/message.api";
 import useSocket from "../../zustand/socket.store";
-import { enterRoom, leaveRoom } from "../../socket/socketController";
+import { enterRoom, leaveRoom, sendAck } from "../../socket/socketController";
 import useUser from "../../zustand/user.store";
 
 const Room = ({ room, currentUserId }) => {
@@ -48,7 +48,7 @@ const Room = ({ room, currentUserId }) => {
       });
     }
   };
-  
+
   // to control entering and exiting the socket room
   useEffect(() => {
     if (!socket || !user) return;
@@ -75,7 +75,12 @@ const Room = ({ room, currentUserId }) => {
   useEffect(() => {
     if (!socket || !user) return;
     const handler = ({ message }) => {
-      setMessages((prev) => [...prev, message]);
+      console.log("[RECEIVE]", message._id);
+      sendAck(user._id, message._id);
+      setMessages((prev) => {
+        if (prev.some((m) => m._id === message._id)) return prev; // saftey guard for duplicate messages
+        return [...prev, message];
+      });
     };
     socket.on("chat:send-msg", handler);
     return () => {
