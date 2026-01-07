@@ -49,6 +49,15 @@ const Room = ({ room, currentUserId }) => {
     }
   };
 
+  // to be passed as a compare function to sort the messages out
+  const compareMessages = (a, b) => {
+    const t1 = new Date(a.createdAt).getTime();
+    const t2 = new Date(b.createdAt).getTime();
+
+    if (t1 !== t2) return t1 - t2;
+    return a._id.localeCompare(b._id); // deterministic fallback
+  };
+
   // to control entering and exiting the socket room
   useEffect(() => {
     if (!socket || !user) return;
@@ -74,12 +83,18 @@ const Room = ({ room, currentUserId }) => {
   // to listen to messages from socket
   useEffect(() => {
     if (!socket || !user) return;
-    const handler = ({ message }) => {
+    const handler = ({ message, retry }) => {
       console.log("[RECEIVE]", message._id);
       sendAck(user._id, message._id);
       setMessages((prev) => {
-        if (prev.some((m) => m._id === message._id)) return prev; // saftey guard for duplicate messages
-        return [...prev, message];
+        // Dedup guard
+        if (prev.some((m) => m._id === message._id)) return prev;
+        const next = [...prev, message];
+        // Only reconcile ordering when retry is true since a hiccup chance in this low level system is very low normally will need to change if system scales
+        if (retry) {
+          return next.sort(compareMessages);
+        }
+        return next;
       });
     };
     socket.on("chat:send-msg", handler);
