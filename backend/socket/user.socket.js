@@ -99,5 +99,9 @@ export const userSocket = function (io) {
     socket.on("disconnect", () => {
       handleLeave(io, socket, "disconnect");
     });
+
+    socket.on("dis", () => {
+      socket.conn.transport.close();
+    });
   });
 };

@@ -6,6 +6,7 @@ import {
   scheduleRetry,
 } from "./trackAck.js";
 import { getRoomMap } from "./room.socket.js";
+import { Message } from "../models/message.model.js";
 
 const pendingAckMap = getPendingAckMap();
 const roomMap = getRoomMap();
@@ -17,15 +18,13 @@ export const messageSocket = function (io) {
     const room = roomMap.get(message.targetId);
 
     // 1. setting the pending ACKs for all users in the room
-    for (const userId of room.keys()) {
+    for (const userId of room?.keys()) {
       setPendingAck({
         userId,
         messageId: message._id.toString(),
         roomId: message.targetId,
       });
     }
-    console.log("[SEND]", user._id, message._id);
-    console.log("map", pendingAckMap.size);
     io.to(message.targetId).emit("chat:send-msg", {
       message,
       user,
@@ -38,8 +37,28 @@ export const messageSocket = function (io) {
     socket.on("chat:ack-msg", (response) => {
       // 4. ack arrives from user , if not then the retry timer will fire
       clearPendingMsg(response.userId, response.msgId);
-      console.log("[ACK]", response.userId, response.msgId);
-      console.log("map", pendingAckMap);
+    });
+
+    socket.on("chat:sync-req", async ({ roomId, lastSeenMsg }) => {
+      try {
+        if (!roomId || !lastSeenMsg) return;
+        const lastCreatedAt = lastSeenMsg.createdAt;
+        const lastId = lastSeenMsg._id;
+        const messages = await Message.find({
+          targetId: roomId,
+          targetType: "room",
+          $or: [
+            { createdAt: { $gt: lastCreatedAt } },
+            {
+              createdAt: lastCreatedAt,
+              _id: { $gt: lastId },
+            },
+          ],
+        }).sort({ createdAt: 1, _id: 1 });
+        socket.emit("chat:sync-res", { messages });
+      } catch (error) {
+        console.log(error);
+      }
     });
   });
 };

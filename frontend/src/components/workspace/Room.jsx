@@ -5,6 +5,7 @@ import { getMessage } from "../../api/message.api";
 import useSocket from "../../zustand/socket.store";
 import { enterRoom, leaveRoom, sendAck } from "../../socket/socketController";
 import useUser from "../../zustand/user.store";
+import { getSyncedChat } from "../../utils/syncChat";
 
 const Room = ({ room, currentUserId }) => {
   const [messages, setMessages] = useState([]);
@@ -71,11 +72,17 @@ const Room = ({ room, currentUserId }) => {
       } else {
         setCursor(null);
       }
+      const last = res.data.messages.at(-1);
+      if (last) {
+        sessionStorage.setItem("lastSeenMsg", JSON.stringify(last));
+      }
       setMessages(res.data?.messages);
       enterRoom(room._id, user);
     })();
 
     return () => {
+      sessionStorage.removeItem("selecteddRoom");
+      sessionStorage.removeItem("lastSeenMsg");
       leaveRoom(room._id, user);
     };
   }, [room, user, socket]);
@@ -84,22 +91,33 @@ const Room = ({ room, currentUserId }) => {
   useEffect(() => {
     if (!socket || !user) return;
     const handler = ({ message, retry }) => {
-      console.log("[RECEIVE]", message._id);
       sendAck(user._id, message._id);
       setMessages((prev) => {
         // Dedup guard
         if (prev.some((m) => m._id === message._id)) return prev;
         const next = [...prev, message];
-        // Only reconcile ordering when retry is true since a hiccup chance in this low level system is very low normally will need to change if system scales
+        // Only reconcile ordering when retry is true since a hiccup chance in this low level system is very low normally, will need to change if system scales
         if (retry) {
           return next.sort(compareMessages);
         }
+        const last = next.at(-1);
+        if (last) {
+          sessionStorage.setItem("lastSeenMsg", JSON.stringify(last));
+        }
+
         return next;
       });
     };
     socket.on("chat:send-msg", handler);
+
+    const syncHandler = ({ messages: incomingMsgs }) => {
+      setMessages((prev) => getSyncedChat(prev, incomingMsgs));
+    };
+    socket.on("chat:sync-res", syncHandler);
+
     return () => {
-      socket.off("chat:send-msg", handler);
+      socket.off("chat:send-msg", syncHandler);
+      socket.off("chat:sync-res", handler);
     };
   }, [socket, user]);
 

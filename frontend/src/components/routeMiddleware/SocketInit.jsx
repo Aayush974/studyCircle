@@ -35,6 +35,16 @@ const SocketInit = ({ user }) => {
               Connect
             </button>
           )}
+          {/* for testing */}
+          <button
+            onClick={() => {
+              // using a custom event to close this socket's transport at the server since disconnect doesn't trigger reconnection and io.engine.close will just kill realtime delivery for all sockets
+              socket.emit("dis");
+            }}
+            className="bg-error"
+          >
+            disconnect
+          </button>
         </div>
       </div>
     </div>

@@ -47,7 +47,6 @@ export function sendAck(userId, msgId) {
   if (!userId || !msgId) return;
   const { socket } = useSocket.getState();
   if (!socket) return;
-  console.log("[ACK SENT]", msgId);
   socket.emit("chat:ack-msg", {
     userId,
     msgId,
@@ -60,7 +59,7 @@ export function enterRoom(roomId, user) {
   const { socket } = useSocket.getState();
   if (!socket) return;
 
-  if (currentRoom === roomId) return;
+  //if (currentRoom === roomId) return;
 
   if (currentRoom) {
     leaveRoom(currentRoom, user);

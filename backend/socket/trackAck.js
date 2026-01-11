@@ -45,7 +45,6 @@ export const scheduleRetry = ({ io, user, message }) => {
   if (!entry) return;
 
   // setting the retry function for the message
-  console.log("retry scheduled");
   entry.retryTimer = setTimeout(() => {
     // if ack arrived by a delay from client or due to effect of some prev retryTimer
     if (!pendingAckMap.has(userId)) return;
@@ -55,7 +54,6 @@ export const scheduleRetry = ({ io, user, message }) => {
       // Give up
       return;
     }
-    console.log("retry no.: ", entry.retryAttempts);
     entry.retryAttempts++; // increment the retry attempt
     io.to(userId).emit("chat:send-msg", { message, user, retry: true }); // emit to the specific user
     scheduleRetry({ io, user, message }); // calling schedule retry for the same message

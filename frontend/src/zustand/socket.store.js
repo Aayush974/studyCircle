@@ -1,5 +1,7 @@
 import { create } from "zustand";
 import io from "socket.io-client";
+import { enterRoom } from "../socket/socketController";
+import useUser from "./user.store";
 
 const useSocket = create((set) => ({
   socket: null,
@@ -16,7 +18,7 @@ const useSocket = create((set) => ({
         ackTimeout: 5000,
         reconnection: true,
         reconnectionAttempts: 3,
-        reconnectionDelay: 4000,
+        reconnectionDelay: 10000,
         timeout: 10000,
       });
 
@@ -27,6 +29,20 @@ const useSocket = create((set) => ({
       socketInstance.on("disconnect", () => {
         set({ isConnected: false });
       });
+
+      socketInstance.io.on("reconnect", () => {
+        const room = JSON.parse(sessionStorage.getItem("selectedRoom"));
+        const roomId = room._id;
+        const lastSeenMsg = JSON.parse(sessionStorage.getItem("lastSeenMsg"));
+        const { user } = useUser.getState();
+        if (!roomId || !lastSeenMsg || !room || !user) return;
+        enterRoom(roomId, user);
+        socketInstance.emit("chat:sync-req", {
+          roomId,
+          lastSeenMsg,
+        });
+      });
+
       set({ socket: socketInstance });
     } catch (error) {
       console.log(error.message);
