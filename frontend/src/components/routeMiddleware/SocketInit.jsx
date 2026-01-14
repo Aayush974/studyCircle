@@ -2,7 +2,8 @@ import { useEffect } from "react";
 import useSocket from "../../zustand/socket.store";
 
 const SocketInit = ({ user }) => {
-  const { socket, isConnected, setSocket, reconnect } = useSocket();
+  const { socket, isConnected, isReconnecting, setSocket, reconnect } =
+    useSocket();
 
   useEffect(() => {
     if (!user || socket) return;
@@ -19,15 +20,23 @@ const SocketInit = ({ user }) => {
 
             <span
               className={`badge ${
-                isConnected ? "badge-success" : "badge-error"
+                isReconnecting
+                  ? "badge-warning"
+                  : isConnected
+                  ? "badge-success"
+                  : "badge-error"
               }`}
             >
-              {isConnected ? "Connected" : "Disconnected"}
+              {isReconnecting
+                ? "Reconnecting..."
+                : isConnected
+                ? "Connected"
+                : "Disconnected"}
             </span>
           </div>
 
           {/* Action */}
-          {!isConnected && (
+          {!isConnected && !isReconnecting && (
             <button
               className="btn btn-sm btn-primary w-full"
               onClick={reconnect}
@@ -36,15 +45,17 @@ const SocketInit = ({ user }) => {
             </button>
           )}
           {/* for testing */}
-          <button
-            onClick={() => {
-              // using a custom event to close this socket's transport at the server since disconnect doesn't trigger reconnection and io.engine.close will just kill realtime delivery for all sockets
-              socket.emit("dis");
-            }}
-            className="bg-error"
-          >
-            disconnect
-          </button>
+          {!isReconnecting && socket && (
+            <button
+              onClick={() => {
+                // using a custom event to close this socket's transport at the server since disconnect doesn't trigger reconnection and io.engine.close will just kill realtime delivery for all sockets
+                socket.emit("dis");
+              }}
+              className="btn btn-sm btn-error w-full"
+            >
+              Disconnect
+            </button>
+          )}
         </div>
       </div>
     </div>

@@ -5,6 +5,7 @@ import useUser from "./user.store";
 
 const useSocket = create((set) => ({
   socket: null,
+  isReconnecting: false,
   isConnected: false,
   setSocket: async (user) => {
     const socketUrl = import.meta.env.VITE_SOCKET_URL;
@@ -18,16 +19,20 @@ const useSocket = create((set) => ({
         ackTimeout: 5000,
         reconnection: true,
         reconnectionAttempts: 3,
-        reconnectionDelay: 10000,
         timeout: 10000,
       });
 
       socketInstance.on("connect", () => {
-        set({ isConnected: true });
+        set({ isConnected: true, isReconnecting: false });
       });
 
       socketInstance.on("disconnect", () => {
-        set({ isConnected: false });
+        set({ isConnected: false,isReconnecting:true });
+      });
+
+      socketInstance.io.on("reconnection_attempt", () => {
+        console.log("attempting reconnect")
+        set({ isReconnecting: true });
       });
 
       socketInstance.io.on("reconnect", () => {
@@ -40,6 +45,16 @@ const useSocket = create((set) => ({
         socketInstance.emit("chat:sync-req", {
           roomId,
           lastSeenMsg,
+        });
+        set({
+          isConnected:true,
+          isReconnecting: false,
+        });
+      });
+
+      socketInstance.io.on("reconnect_failed", () => {
+        set({
+          isReconnecting: false,
         });
       });
 
