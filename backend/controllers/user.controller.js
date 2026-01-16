@@ -116,8 +116,8 @@ const loginUser = asyncHandler(async function (req, res, next) {
   const options = {
     httpOnly: true,
     // setting cookie attributes by checking dev mode
-    secure:  process.env.NODE_ENV == "production" ? true : false,
-    sameSite: process.env.NODE_ENV == "production" ? "none": "lax",
+    secure: process.env.NODE_ENV == "production" ? true : false,
+    sameSite: process.env.NODE_ENV == "production" ? "none" : "lax",
     maxAge: 10 * 24 * 60 * 60 * 1000, // 10 days max age
   };
 
@@ -369,6 +369,29 @@ const updateAvatar = asyncHandler(async function (req, res) {
   }
 });
 
+const getCurrentUser = asyncHandler(async function (req, res, next) {
+  const user = req.user;
+
+  if (!user) {
+    throw new ApiError(401, "the user is not valid");
+  }
+
+  const dbUser = await User.findById(user._id).select(
+    "-password -refreshToken -emailVerificationToken -emailVerificationTokenExpires"
+  );
+
+  if (!dbUser) {
+    throw new ApiError(404, "user not found");
+  }
+
+  return res.status(200).json({
+    status: 200,
+    success: true,
+    message: "current user fetched successfully",
+    user: dbUser,
+  });
+});
+
 export {
   registerUser,
   loginUser,
@@ -378,4 +401,5 @@ export {
   refreshAccessAndRefreshToken,
   updatePassword,
   updateAvatar,
+  getCurrentUser,
 };

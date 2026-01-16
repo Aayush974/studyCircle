@@ -1,6 +1,7 @@
 import { Router } from "express";
 import uploadMiddleware from "../middlewares/multer.middleware.js";
 import {
+  getCurrentUser,
   loginUser,
   logoutUser,
   refreshAccessAndRefreshToken,
@@ -17,6 +18,7 @@ const userRouter = Router();
 userRouter.post("/register", uploadMiddleware, registerUser);
 userRouter.post("/login", loginUser);
 userRouter.post("/logout", verifyJwt, logoutUser);
+userRouter.get("/get-current-user", verifyJwt, getCurrentUser);
 userRouter.get("/send-verification-email", verifyJwt, sendEmailVerification);
 userRouter.get("/verify-email", verifyEmail);
 userRouter.get(

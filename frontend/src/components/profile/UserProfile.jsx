@@ -11,7 +11,7 @@ const UserProfile = () => {
   const handleLogout = async () => {
     const res = await logoutUser();
     if (res.status >= 400 && res.error) {
-      ShowToast(res.error, {
+      ShowToast(res.error?.message, {
         type: "error",
       });
     }

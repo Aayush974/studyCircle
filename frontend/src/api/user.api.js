@@ -64,4 +64,48 @@ const logoutUser = async () => {
   }
 };
 
-export { registerUser, loginUser,logoutUser };
+const getCurrentUser = async () => {
+  try {
+    const res = await axios.get(`/api/users/get-current-user`, {
+      withCredentials: true,
+    });
+    return {
+      status: res.status,
+      data: res.data,
+      error: null,
+    };
+  } catch (error) {
+    return {
+      status: error.response?.status || 400,
+      data: null,
+      error: error.response?.data || "something went wrong",
+    };
+  }
+};
+
+const sendVerificationEmail = async () => {
+  try {
+    const res = await axios.get(`/api/users/send-verification-email`, {
+      withCredentials: true,
+    });
+    return {
+      status: res.status,
+      data: res.data,
+      error: null,
+    };
+  } catch (error) {
+    return {
+      status: error.response?.status || 400,
+      data: null,
+      error: error.response?.data || "something went wrong",
+    };
+  }
+};
+
+export {
+  registerUser,
+  loginUser,
+  logoutUser,
+  sendVerificationEmail,
+  getCurrentUser,
+};

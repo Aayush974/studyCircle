@@ -1,9 +1,10 @@
-import { UserProfile, UserWorkspaces } from "../components";
+import { UserProfile, UserWorkspaces, UserDetails } from "../components";
 
 const Profile = () => {
   return (
     <>
       <UserProfile />
+      <UserDetails />
       <UserWorkspaces />
     </>
   );

@@ -20,7 +20,7 @@ const UserWorkspaces = function () {
 
       const res = await getUserWorkspaces(userId);
       if (res.status > 400 && res.error) {
-        ShowToast(res.error, {
+        ShowToast(res.error?.message, {
           type: "error",
         });
         setWorkspaces([]);
@@ -35,7 +35,7 @@ const UserWorkspaces = function () {
   return (
     <main className="p-4">
       <div>
-        <div className="flex gap-4 my-8">
+        <div className="flex gap-4">
           <h2 className="text-xl md:text-2xl lg:text4xl xl:text-5xl font-semibold my-8">
             Workspaces
           </h2>

@@ -10,6 +10,7 @@ import HomeAbout from "./home/HomeAbout";
 import HomeFooter from "./home/HomeFooter";
 import UserProfile from "./profile/UserProfile";
 import UserWorkspaces from "./profile/UserWorkspaces";
+import UserDetails from "./profile/UserDetails";
 import ProtectedRoute from "./routeMiddleware/ProtectedRoute";
 import WsSidebar from "./workspace/WsSidebar";
 import WsGeneral from "./workspace/WsGeneral";
@@ -28,6 +29,7 @@ export {
   HomeFooter,
   UserProfile,
   UserWorkspaces,
+  UserDetails,
   ProtectedRoute,
   WsSidebar,
   WsGeneral,
