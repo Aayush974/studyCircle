@@ -17,25 +17,25 @@ export const messageSocket = function (io) {
 
     const room = roomMap.get(message.targetId);
 
-    // 1. setting the pending ACKs for all users in the room
+    // 1. setting the pending ACKs and scheduling message retries for all users in the room
     for (const userId of room?.keys()) {
       setPendingAck({
         userId,
         messageId: message._id.toString(),
         roomId: message.targetId,
       });
+      scheduleRetry({io,userId,message,sender:user})
     }
     io.to(message.targetId).emit("chat:send-msg", {
       message,
       user,
       retry: false,
     }); // 2. emitting msg to all the users in the room
-    scheduleRetry({ io, user, message }); // 3. scheduling a retry timer
   });
 
   io.on("connection", (socket) => {
     socket.on("chat:ack-msg", (response) => {
-      // 4. ack arrives from user , if not then the retry timer will fire
+      // 3. ack arrives from user , if not then the retry timer will fire
       clearPendingMsg(response.userId, response.msgId);
     });
 

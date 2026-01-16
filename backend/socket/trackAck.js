@@ -32,10 +32,9 @@ export const setPendingAck = ({ userId, messageId, roomId }) => {
   });
 };
 
-export const scheduleRetry = ({ io, user, message }) => {
-  if (!io || !user._id || !message._id) return;
+export const scheduleRetry = ({ io, userId, message,sender }) => {
+  if (!io || !userId || !message._id) return;
 
-  const userId = user._id.toString();
   const messageId = message._id.toString();
 
   const userMap = pendingAckMap.get(userId);
@@ -55,8 +54,8 @@ export const scheduleRetry = ({ io, user, message }) => {
       return;
     }
     entry.retryAttempts++; // increment the retry attempt
-    io.to(userId).emit("chat:send-msg", { message, user, retry: true }); // emit to the specific user
-    scheduleRetry({ io, user, message }); // calling schedule retry for the same message
+    io.to(userId).emit("chat:send-msg", { message, user:sender, retry: true }); // emit to the specific user
+    scheduleRetry({ io, userId, message,sender }); // calling schedule retry for the same message
   }, RETRY_INTERVAL);
 };
 
