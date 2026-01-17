@@ -33,7 +33,7 @@ const UserWorkspaces = function () {
   }, [userId]);
 
   return (
-    <main className="p-4">
+    <main className="p-4 my-10 mx-4  bg-base-200 border-1 border-neutral-600 hover:bg-base-300 hover:border-neutral-300 rounded-lg hover:shadow-lg transition-all">
       <div>
         <div className="flex gap-4">
           <h2 className="text-xl md:text-2xl lg:text4xl xl:text-5xl font-semibold my-8">
@@ -73,7 +73,7 @@ const UserWorkspaces = function () {
                         className="h-full w-full object-cover rounded-t shadow-md shadow-gray-400"
                       />
                     ) : (
-                      <div className="h-32 w-full bg-gray-100  rounded flex items-center justify-center text-gray-400">
+                      <div className="h-full w-full bg-neutral-300  rounded flex items-center justify-center text-neutral-600">
                         No image
                       </div>
                     )}

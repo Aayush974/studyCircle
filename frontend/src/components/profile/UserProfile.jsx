@@ -4,7 +4,7 @@ import useUser from "../../zustand/user.store";
 import { Heading } from "../index";
 import { CgProfile } from "react-icons/cg";
 import { VscSignOut } from "react-icons/vsc";
-
+import { disconnectSocket } from "../../socket/socketController";
 const UserProfile = () => {
   const { user, setUser } = useUser();
 
@@ -17,6 +17,9 @@ const UserProfile = () => {
     }
     setUser(null);
     useUser.persist.clearStorage();
+    sessionStorage.removeItem("lastSeenMsg");
+    sessionStorage.removeItem("selectedRoom");
+    disconnectSocket();
     ShowToast(res.data?.message, {
       type: "success",
     });

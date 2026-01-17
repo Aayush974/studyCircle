@@ -35,12 +35,12 @@ const UserDetails = () => {
   }, []);
 
   return (
-    <div className="p-4 space-y-4">
+    <div className="p-4 my-10 mx-4  bg-base-200 border-1 border-neutral-600 hover:bg-base-300 hover:border-neutral-300 rounded-lg hover:shadow-lg transition-all">
       <h2 className="text-xl md:text-2xl lg:text4xl xl:text-5xl font-semibold my-8">
         User Details
       </h2>
 
-      <div className="space-y-1 text-lg md:text-xl lg:text:2xl xl:text-2xl">
+      <div className="space-y-1 flex flex-col gap-4 text-lg md:text-xl lg:text:2xl xl:text-2xl">
         <p>
           <strong>Email:</strong> {user?.email}
         </p>
@@ -51,20 +51,19 @@ const UserDetails = () => {
               user.isEmailVerified ? "badge-success" : "badge-error"
             } text-base md:text-lg lg:text:xl xl:text-xl`}
           >
-            Yes
+            {user.isEmailVerified ? "Yes" : "No"}
           </span>
         </p>
+        {!user?.isEmailVerified && (
+          <button
+            disabled={isSendingMail}
+            onClick={verifyEmail}
+            className="px-4 py-2 w-fit  rounded-md btn btn-primary text-lg md:text-xl lg:text:2xl xl:text-2xl"
+          >
+            {isSendingMail ? "sending..." : "Send mail"}
+          </button>
+        )}
       </div>
-
-      {!user?.isEmailVerified && (
-        <button
-          disabled={isSendingMail}
-          onClick={verifyEmail}
-          className="px-4 py-2  rounded-md btn btn-primary text-lg md:text-xl lg:text:2xl xl:text-2xl"
-        >
-          {isSendingMail ? "sending..." : "Send mail"}
-        </button>
-      )}
     </div>
   );
 };

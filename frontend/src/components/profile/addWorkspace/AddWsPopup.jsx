@@ -14,7 +14,7 @@ const AddWsPopup = () => {
         className="rounded-full self-center bg-base-100 w-8 h-8 xl:w-12 xl:h-12 cursor-pointer hover:shadow-2xl hover:shadow-grey-800 transition-all"
         onClick={() => modalRef.current?.showModal()}
       >
-        <IoAddCircleOutline className=" w-full h-full text-gray-400 opacity-70 hover:text-gray-300 hover:opacity-100" />
+        <IoAddCircleOutline className=" w-full h-full bg-base-200 text-base-content rounded-full opacity-70 hover:bg-base-300 hover:opacity-100" />
       </button>
       {/* dialog content */}
       <dialog ref={modalRef} id="add_workspace_modal" className="modal">
