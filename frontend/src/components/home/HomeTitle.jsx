@@ -70,7 +70,7 @@ const HomeTitle = function () {
       >
         {/* bg image */}
         <Image
-          src="/src/assets/studyCircleDark.png"
+          src="https://res.cloudinary.com/dkaeohu5t/image/upload/v1768841048/avatars/sm4gvbqg3yqfpgjgkekv.png"
           alt="background image"
           className={"opacity-15 absolute"}
         />
