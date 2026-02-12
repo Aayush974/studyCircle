@@ -50,7 +50,7 @@ const UserProfile = () => {
       <div className="absolute w-30 h-30 bottom-0 translate-y-3/10 right-20 bg-base-200 rounded-full">
         {user?.avatar ? (
           <img
-            src={user.profilePicture}
+            src={user.avatar}
             alt="Profile"
             className="w-full h-full object-cover rounded-full border-4 border-base-100"
           />
