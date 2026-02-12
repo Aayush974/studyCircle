@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { IoAddCircleOutline } from "react-icons/io5";
-import CreateWorkspaceModal from "./createWorkspace";
+import CreateWorkspaceModal from "./CreateWorkspace";
 import JoinWorkspaceModal from "./JoinWorkspace";
 
 const AddWsPopup = () => {
