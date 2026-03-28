@@ -1,8 +1,8 @@
-import axios from "axios";
+import { api } from "./axios.config.js";
 
 const getUserWorkspaces = async function (userId) {
   try {
-    const res = await axios.get(`/api/workspace/get-user/workspaces`, {
+    const res = await api.get(`/workspace/get-user/workspaces`, {
       params: { userId },
       headers: { "Content-Type": "application/json" },
       withCredentials: true,
@@ -23,7 +23,7 @@ const getUserWorkspaces = async function (userId) {
 
 const createWorkspace = async function (data) {
   try {
-    const res = await axios.post("/api/workspace/create-workspace", data, {
+    const res = await api.post("/workspace/create-workspace", data, {
       headers: { "Content-Type": "multipart/form-data" },
       withCredentials: true,
     });
@@ -43,7 +43,7 @@ const createWorkspace = async function (data) {
 
 const searchWorkspace = async function (name) {
   try {
-    const res = await axios.get("/api/workspace/search", {
+    const res = await api.get("/workspace/search", {
       params: { name },
       headers: { "Content-Type": "application/json" },
       withCredentials: true,
@@ -64,7 +64,7 @@ const searchWorkspace = async function (name) {
 
 const joinWorkspace = async function (data) {
   try {
-    const res = await axios.post("/api/workspace/join-workspace", data, {
+    const res = await api.post("/workspace/join-workspace", data, {
       headers: { "Content-Type": "application/json" },
       withCredentials: true,
     });
@@ -84,7 +84,7 @@ const joinWorkspace = async function (data) {
 
 const fetchWorkspace = async function (id) {
   try {
-    const res = await axios.get(`/api/workspace/get-workspace/${id}`, {
+    const res = await api.get(`/workspace/get-workspace/${id}`, {
       headers: { "Content-Type": "application/json" },
       withCredentials: true,
     });

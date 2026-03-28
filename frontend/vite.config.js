@@ -8,7 +8,7 @@ export default defineConfig({
     port: 5173,
     proxy: {
       "/api": {
-        target: "https://studycircle-epds.onrender.com", //  backend server
+        target: "http://localhost:3000/api/v1", // local  backend server
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path.replace(/^\/api/, ""), // removes the extra /api

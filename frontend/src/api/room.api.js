@@ -1,8 +1,8 @@
-import axios from "axios";
+import { api } from "./axios.config.js";
 
 const createRoom = async function (data) {
   try {
-    const res = await axios.post("/api/room/create-room", data, {
+    const res = await api.post("/room/create-room", data, {
       headers: { "Content-Type": "application/json" },
       withCredentials: true,
     });
@@ -22,7 +22,7 @@ const createRoom = async function (data) {
 
 const getAllRooms = async function (workspaceId) {
   try {
-    const res = await axios.get(`/api/room/get-allRooms/${workspaceId}`, {
+    const res = await api.get(`/room/get-allRooms/${workspaceId}`, {
       headers: { "Content-Type": "application/json" },
       withCredentials: true,
     });

@@ -1,5 +1,4 @@
 import { api } from "./axios.config.js";
-import axios from "axios";
 
 const registerUser = async function (data) {
   try {
@@ -22,7 +21,7 @@ const registerUser = async function (data) {
 
 const loginUser = async function (data) {
   try {
-    const res = await axios.post(`/api/users/login`, data, {
+    const res = await api.post(`/users/login`, data, {
       // using axios here and not api since have to use vite's proxy here, else the cookie is not being set in the browser
       headers: { "Content-Type": "application/json" },
       withCredentials: true,
@@ -43,8 +42,8 @@ const loginUser = async function (data) {
 
 const logoutUser = async () => {
   try {
-    const res = await axios.post(
-      "/api/users/logout",
+    const res = await api.post(
+      "/users/logout",
       {}, // empty data since logout is cookie based
       {
         withCredentials: true,
@@ -66,7 +65,7 @@ const logoutUser = async () => {
 
 const getCurrentUser = async () => {
   try {
-    const res = await axios.get(`/api/users/get-current-user`, {
+    const res = await api.get(`/users/get-current-user`, {
       withCredentials: true,
     });
     return {
@@ -85,7 +84,7 @@ const getCurrentUser = async () => {
 
 const sendVerificationEmail = async () => {
   try {
-    const res = await axios.get(`/api/users/send-verification-email`, {
+    const res = await api.get(`/users/send-verification-email`, {
       withCredentials: true,
     });
     return {

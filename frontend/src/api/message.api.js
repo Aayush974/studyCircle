@@ -1,8 +1,8 @@
-import axios from "axios";
+import { api } from "./axios.config.js";
 
 const createMessage = async function (data) {
   try {
-    const res = await axios.post("/api/messages/create-message", data, {
+    const res = await api.post("/messages/create-message", data, {
       headers: { "Content-Type": "multipart/form-data" },
       withCredentials: true,
     });
@@ -22,7 +22,7 @@ const createMessage = async function (data) {
 
 const getMessage = async function ({ targetId, targetType, limit, before }) {
   try {
-    const res = await axios.get("/api/messages/get-message", {
+    const res = await api.get("/messages/get-message", {
       params: { targetId, targetType, before, limit },
       headers: { "Content-Type": "application/json" },
       withCredentials: true,
