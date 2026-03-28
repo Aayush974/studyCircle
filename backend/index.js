@@ -10,11 +10,21 @@ import { roomSocket } from "./socket/room.socket.js";
 const server = createServer(app); // creating a node.js http server using express app
 const io = new Server(server, {
   cors: {
-    origin: process.env.LOCAL_ENV_URL_CORS,
+    origin: (origin, callback) => {
+      const whiteList = [process.env.LOCAL_ENV_URL_CORS];
+      if (
+        !origin ||
+        whiteList.indexOf(origin) !== -1 ||
+        origin.includes("vercel.app")
+      ) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   },
-}); // creating a new socket.io server instance that share the same underlying HTTP server as express app
-
+});
 io.use(verifySocket); // auth middleware for socket connection
 
 userSocket(io);
