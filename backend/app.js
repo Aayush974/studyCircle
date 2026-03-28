@@ -10,7 +10,11 @@ const whiteList = [process.env.LOCAL_ENV_URL_CORS];
 
 const corsOptions = {
   origin: function (origin, callback) {
-    if (!origin || whiteList.indexOf(origin) !== -1) {
+    if (
+      !origin ||
+      whiteList.indexOf(origin) !== -1 ||
+      origin.includes("vercel.app")
+    ) {
       callback(null, true);
     } else {
       callback(new Error("Not allowed by CORS"));
